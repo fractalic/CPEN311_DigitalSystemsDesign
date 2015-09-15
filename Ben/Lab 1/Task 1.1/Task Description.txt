@@ -1,0 +1,6 @@
+TASK 1.1: The first step is to install Quartus II and the Altera version of ModelSim on your home PC or
+laptop, or find a place you can run the software (it will be available on most of the computers available
+throughout the department). Installation instructions can be found in the “Digital System Design using
+Altera Quartus II and ModelSim” document (called tutorial.pdf) located in the Lab 1 folder on Connect.
+
+>>DONE

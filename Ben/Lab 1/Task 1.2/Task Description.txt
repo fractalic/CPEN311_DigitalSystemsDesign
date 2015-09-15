@@ -1,0 +1,8 @@
+TASK 1.2: Work through the rest of the “Digital System Design using Altera Quartus II and ModelSim”
+tutorial document located in the Lab 1 folder of Connect. There are some download files for this tutorial,
+which you can find in Lab->Download Files->Task1.2 on the Connect site. This will re-introduce you to
+Quartus II and ModelSim, which are the tools we will use throughout the course. Even if you have used
+Quartus II and Modelsim, you might have forgotten some of the details, so it will save you a lot of time if
+you work through the tutorial carefully.
+
+>>TODO
