@@ -45,6 +45,10 @@ end state_machine;
 
 architecture behavioural of state_machine is
 
--- Write your code here.
+-- state management
+signal current_state, next_state
+
+begin
+
 
 end behavioural;
