@@ -45,10 +45,22 @@ end state_machine;
 
 architecture behavioural of state_machine is
 
+-- State types
+type STATE is (state_B, state_E, state_N, state_J, state_A, state_M, state_I, state_N2);
+
 -- state management
-signal current_state, next_state
+signal current_state, next_state : STATE;
 
 begin
+
+-- Next state logic
+-- TODO
+
+-- Track state
+-- TODO
+
+-- Output logic
+-- TODO
 
 
 end behavioural;
