@@ -27,7 +27,7 @@ entity state_machine is
    port (clk : in std_logic;  -- clock input to state machine
          resetb : in std_logic;  -- active-low reset input
          dir : in std_logic;     -- dir input
-         hex0 : out std_logic_vector(6 downto 0)  -- output of state machine
+         hex_out : out std_logic_vector(6 downto 0)  -- output of state machine
             -- Note that in the above, hex0 is a 7-bit wide bus
             -- indexed using indices 6, 5, 4 ... down to 0.  The
             -- most-significant bit is hex(6) and the least significant
@@ -45,22 +45,114 @@ end state_machine;
 
 architecture behavioural of state_machine is
 
--- State types
-type STATE is (state_B, state_E, state_N, state_J, state_A, state_M, state_I, state_N2);
+	-- State types
+	type STATE is (state_B, state_E, state_N, state_J, state_A, state_M, state_I, state_N2);
+	-- state management
+	signal current_state, next_state : STATE;
+	
+	-- Direction type
+	type DIRECTION is (dir_forward , dir_backward);
+	-- direction management
+	signal dir_sig : DIRECTION;
+	
 
--- state management
-signal current_state, next_state : STATE;
+	begin
+		process(dir)
+		begin
+			case dir is
+				when '0' => dir_sig <= dir_forward;
+				when '1' => dir_sig <= dir_backward;
+				when others => dir_sig <= dir_forward;
+			end case;
+		end process;
+		
+		-- Next state logic
+		process(current_state)
+		begin
+			case current_state is
+				when state_B =>
+					if (dir_sig = dir_forward) then
+						next_state <= state_E;
+					else
+						next_state <= state_N2;
+					end if;
+				when state_E =>
+					if (dir_sig = dir_forward) then
+						next_state <= state_N;
+					else
+						next_state <= state_B;
+					end if;
+				when state_N =>
+					if (dir_sig = dir_forward) then
+						next_state <= state_J;
+					else
+						next_state <= state_E;
+					end if;
+				when state_J =>
+					if (dir_sig = dir_forward) then
+						next_state <= state_A;
+					else
+						next_state <= state_N;
+					end if;
+				when state_A =>
+					if (dir_sig = dir_forward) then
+						next_state <= state_M;
+					else
+						next_state <= state_J;
+					end if;
+				when state_M =>
+					if (dir_sig = dir_forward) then
+						next_state <= state_I;
+					else
+						next_state <= state_A;
+					end if;
+				when state_I =>
+					if (dir_sig = dir_forward) then
+						next_state <= state_N2;
+					else
+						next_state <= state_M;
+					end if;
+				when state_N2 =>
+					if (dir_sig = dir_forward) then
+						next_state <= state_B;
+					else
+						next_state <= state_I;
+					end if;
+				when others =>
+					if (dir_sig = dir_forward) then
+						next_state <= state_B;
+					else
+						next_state <= state_B;
+					end if;
+			end case;
+			
+			if (resetb = '0') then
+				next_state <= state_B;
+			end if;
+		end process;
 
-begin
+	-- Track state
+	process (clk)
+	begin
+	   if (rising_edge(clk)) then
+		   current_state <= next_state;
+		end if;
+	end process;
 
--- Next state logic
--- TODO
-
--- Track state
--- TODO
-
--- Output logic
--- TODO
+	-- Output logic
+	process(current_state)
+	begin
+		case current_state is
+			when state_B => hex_out <= "1100000";
+			when state_E => hex_out <= "0110000";
+			when state_N | state_N2 => hex_out <= "1101010";
+			when state_J => hex_out <= "1000011";
+			when state_A => hex_out <= "0001000";
+			when state_M => hex_out <= "0001001";
+			when state_I => hex_out <= "1001111";
+			when others => hex_out <= "1111111";
+		end case;
+	end process;
 
 
 end behavioural;
