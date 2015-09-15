@@ -1,0 +1,13 @@
+## Ignore compiled files and Quartus II caches
+
+*.sof
+*.pof
+*.qsf
+*.qsf.bak
+*.qws
+*.cdf
+*.vhd.bak
+
+**/db/
+**/incremental_db/
+**/output_files/
