@@ -7,6 +7,7 @@
 *.qws
 *.cdf
 *.vhd.bak
+*.qpf
 
 **/db/
 **/incremental_db/
