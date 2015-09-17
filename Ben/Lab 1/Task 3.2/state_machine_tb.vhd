@@ -34,7 +34,7 @@ architecture rtl of state_machine_tb is
       port (clk : in std_logic;
             resetb : in std_logic;
             dir : in std_logic;
-            hex0 : out std_logic_vector(6 downto 0)
+            hex_out : out std_logic_vector(6 downto 0)
       );
    end component;
 

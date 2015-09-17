@@ -60,14 +60,14 @@ architecture behavioural of state_machine is
 		process(dir)
 		begin
 			case dir is
-				when '0' => dir_sig <= dir_forward;
-				when '1' => dir_sig <= dir_backward;
+				when '1' => dir_sig <= dir_forward;
+				when '0' => dir_sig <= dir_backward;
 				when others => dir_sig <= dir_forward;
 			end case;
 		end process;
 		
 		-- Next state logic
-		process(current_state)
+		process(next_state, current_state, resetb, dir_sig)
 		begin
 			case current_state is
 				when state_B =>
