@@ -50,7 +50,7 @@ architecture structural of phase3 is
       port (clk : in std_logic;   -- clock input
          resetb : in std_logic;   -- active-low reset input
          dir : in std_logic;      -- dir switch value
-         hex0 : out std_logic_vector(6 downto 0)  -- drive digit 0
+         hex_out : out std_logic_vector(6 downto 0)  -- drive digit 0
       );
    end component;
 

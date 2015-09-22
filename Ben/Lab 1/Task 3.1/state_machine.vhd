@@ -143,13 +143,13 @@ architecture behavioural of state_machine is
 	process(current_state)
 	begin
 		case current_state is
-			when state_B => hex_out <= "1100000";
-			when state_E => hex_out <= "0110000";
-			when state_N | state_N2 => hex_out <= "1101010";
-			when state_J => hex_out <= "1000011";
+			when state_B => hex_out <= "0000011";
+			when state_E => hex_out <= "0000110";
+			when state_N | state_N2 => hex_out <= "0101011";
+			when state_J => hex_out <= "1100001";
 			when state_A => hex_out <= "0001000";
-			when state_M => hex_out <= "0001001";
-			when state_I => hex_out <= "1001111";
+			when state_M => hex_out <= "1001000";
+			when state_I => hex_out <= "1111001";
 			when others => hex_out <= "1111111";
 		end case;
 	end process;
