@@ -59,12 +59,12 @@ architecture structural of challenge_machine is
    end component;
 	
 	-- The divided clock for the state machine.
-   signal clock_1 : std_logic;
+   signal clock_1, clock_2 : std_logic;
 	-- Count the number of clock pulses since last reset.
-   signal count50 : unsigned(29 downto 0) := (others => '0');
+   signal count50, count50_2 : unsigned(29 downto 0) := (others => '0');
 	-- countTest: a number to count to
 	-- countTop: high order bits of count50
-	signal countTest, countTop : unsigned(8 downto 0);
+	signal countTest, countTest_2, countTop, countTop_2 : unsigned(8 downto 0);
 
 begin
 
@@ -74,6 +74,7 @@ begin
 	 -- The input number is biased (one of the middle bits is set to 1)
 	 -- to provide a minimum number (and thus minimum duration) for the
 	 -- clock pulse. The user tunes the duration by pushing switches.
+	 -- The same logic is applied to generate the second clock, clock_2.
     PROCESS (CLOCK_50)	
     BEGIN
 		if rising_edge (CLOCK_50) then
@@ -83,6 +84,13 @@ begin
 			else
 				count50 <= count50 + 1;
 			end if;
+			
+			if (countTop_2 >= countTest_2) then
+				clock_2 <= not clock_2;
+				count50_2 <= to_unsigned(0, count50_2'length);
+			else
+				count50_2 <= count50_2 + 1;
+			end if;
       end if;
     END process;
 	 
@@ -91,12 +99,19 @@ begin
 	 -- The high order bits of the counter.
 	 countTop <= count50(27 downto 19);
 	 
+	 -- A number to count to.
+	 countTest_2 <= unsigned(SW(9 downto 5) & '1' & SW(4 downto 2));
+	 -- The high order bits of the counter.
+	 countTop_2 <= count50_2(27 downto 19);
+	 
 	 -- Communication.
-	 LEDR(0) <= SW(0);
-	 LEDR(9 downto 1) <= std_logic_vector(countTop);
+	 LEDR(1 downto 0) <= SW(1 downto 0);
+	 LEDR(9 downto 2) <= "11111111" and not SW(9 downto 2);
 	 LEDR(17 downto 10) <= "11111111" and not SW(17 downto 10);
 	 LEDG(0) <= clock_1;
+	 LEDG(1) <= clock_2;
 
     -- instantiate the state machine component   
     letter_machine_1: state_machine port map(clock_1, KEY(0), SW(0), HEX0);
+	 letter_machine_2: state_machine port map(clock_2, KEY(1), SW(1), HEX1);
 end structural;

@@ -119,11 +119,7 @@ architecture behavioural of state_machine is
 						next_state <= state_I;
 					end if;
 				when others =>
-					if (dir_sig = dir_forward) then
-						next_state <= state_B;
-					else
-						next_state <= state_B;
-					end if;
+					next_state <= state_B;
 			end case;
 			
 			if (resetb = '0') then
