@@ -57,70 +57,34 @@ architecture structural of challenge_machine is
          hex_out : out std_logic_vector(6 downto 0)  -- drive digit 0
       );
    end component;
-
-   -- These two signals are used in the clock divider (see below).
-   -- slow_clock is the output of the clock divider, and count50 is
-   -- an internal signal used within the clock divider.
 	
-   signal clock_state, next_state, clock_1, count_reset: std_logic;
+	-- The divided clock for the state machine.
+   signal clock_1 : std_logic;
+	-- Count the number of clock pulses since last reset.
    signal count50 : unsigned(29 downto 0) := (others => '0');
+	-- countTest: a number to count to
+	-- countTop: high order bits of count50
 	signal countTest, countTop : unsigned(8 downto 0);
-
-   -- Note: the above syntax (others=>'0') is a short cut for initializing
-   -- all bits in this 26 bit wide bus to 0. 
 
 begin
 
-    -- This is the clock divider process.  It converts a 50Mhz clock to a much
-    -- slower clock (you can work out the period, but it is on the order of seconds).
-    -- We haven't really talked about this in
-    -- class yet, but you should be able to figure out how it works.  It counts 
-    -- by 1, and uses the most significant bit of the count as the output (slow) clock.
-    -- As a good exercise: what would you do if you wanted to slow down the speed of
-    -- the output clock by half?  
-
-    PROCESS (CLOCK_50)	
-    BEGIN
-		if rising_edge (CLOCK_50) THEN
-			if (count_reset = '0') then
-            count50 <= count50 + 1;
-			else
-				count50 <= to_unsigned(0, count50'length);
-			end if;
-			clock_state <= next_state;
-      end if;
-    END process;
-	 
-	 -- Generate a clock pulse by comparing the switch inputs with
+	-- Generate a clock pulse by comparing the switch inputs with
 	 -- the current count50 value. Every time the count50 exceeds
 	 -- the input number, reset count50 and invert clock_1.
 	 -- The input number is biased (one of the middle bits is set to 1)
 	 -- to provide a minimum number (and thus minimum duration) for the
 	 -- clock pulse. The user tunes the duration by pushing switches.
-	 process(clock_state, next_state, count50, countTest, countTop)
-	 begin
-		case (clock_state) is
-			when '0' =>
-				if (countTop >= countTest) then
-					next_state <= '1';
-					count_reset <= '1';
-				else
-					next_state <= '0';
-					count_reset <= '0';
-				end if;
-			when '1' =>
-				if (countTop >= countTest) then
-					next_state <= '0';
-					count_reset <= '1';
-				else
-					next_state <= '1';
-					count_reset <= '0';
-				end if;
-			when others =>
-				next_state <= '0';
-				count_reset <= '0';
-			end case;
-	 end process;
+    PROCESS (CLOCK_50)	
+    BEGIN
+		if rising_edge (CLOCK_50) then
+			if (countTop >= countTest) then
+				clock_1 <= not clock_1;
+				count50 <= to_unsigned(0, count50'length);
+			else
+				count50 <= count50 + 1;
+			end if;
+      end if;
+    END process;
 	 
 	 -- A number to count to.
 	 countTest <= unsigned(SW(17 downto 13) & '1' & SW(12 downto 10));
@@ -132,20 +96,7 @@ begin
 	 LEDR(9 downto 1) <= std_logic_vector(countTop);
 	 LEDR(17 downto 10) <= "11111111" and not SW(17 downto 10);
 	 LEDG(0) <= clock_1;
-	 LEDG(2) <= count_reset;
-	 
-	 -- Generate next clock pulse.
-	 process(clock_state)
-	 begin
-		case (clock_state) is
-			when '0' => clock_1 <= '0';
-			when '1' => clock_1 <= '1';
-			when others => clock_1 <= '0';
-		end case;
-	 end process;
 
-    -- instantiate the state machine component, which is defined in 
-    -- state_machine.vhd (which you will write).    
-
+    -- instantiate the state machine component   
     letter_machine_1: state_machine port map(clock_1, KEY(0), SW(0), HEX0);
 end structural;
