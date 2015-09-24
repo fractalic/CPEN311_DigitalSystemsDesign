@@ -1,0 +1,104 @@
+# Compile of win.vhd failed with 2 errors.
+# Compile of win_tb.vhd was successful.
+# 2 compiles, 1 failed with 2 errors. 
+# Compile of win.vhd was successful.
+# Compile of win_tb.vhd was successful.
+# 2 compiles, 0 failed with no errors. 
+vsim work.win_tb
+# vsim work.win_tb 
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.win_tb(behavioural)
+# Loading work.win(behavioural)
+restart
+run
+# ** Note: -------------------------------------------
+#    Time: 0 ps  Iteration: 0  Instance: /win_tb
+# ** Note: Test case 0: spin_result=19 bet1_value=18 bet2_colour='0' bet3_dozen=0
+#    Time: 0 ps  Iteration: 0  Instance: /win_tb
+# ** Note: Expected result: bet1_wins='0'  bet2_wins='0'  bet3_wins='0'
+#    Time: 1 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Observed result: bet1_wins='0'  bet2_wins='0'  bet3_wins='0'
+#    Time: 1 ns  Iteration: 0  Instance: /win_tb
+# ** Note: -------------------------------------------
+#    Time: 1 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Test case 1: spin_result=19 bet1_value=19 bet2_colour='0' bet3_dozen=0
+#    Time: 1 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Expected result: bet1_wins='1'  bet2_wins='0'  bet3_wins='0'
+#    Time: 2 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Observed result: bet1_wins='1'  bet2_wins='0'  bet3_wins='0'
+#    Time: 2 ns  Iteration: 0  Instance: /win_tb
+# ** Note: -------------------------------------------
+#    Time: 2 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Test case 2: spin_result=19 bet1_value=18 bet2_colour='1' bet3_dozen=0
+#    Time: 2 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Expected result: bet1_wins='0'  bet2_wins='1'  bet3_wins='0'
+#    Time: 3 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Observed result: bet1_wins='0'  bet2_wins='1'  bet3_wins='0'
+#    Time: 3 ns  Iteration: 0  Instance: /win_tb
+# ** Note: -------------------------------------------
+#    Time: 3 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Test case 3: spin_result=19 bet1_value=18 bet2_colour='0' bet3_dozen=1
+#    Time: 3 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Expected result: bet1_wins='0'  bet2_wins='0'  bet3_wins='1'
+#    Time: 4 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Observed result: bet1_wins='0'  bet2_wins='0'  bet3_wins='1'
+#    Time: 4 ns  Iteration: 0  Instance: /win_tb
+# ** Note: -------------------------------------------
+#    Time: 4 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Test case 4: spin_result=32 bet1_value=32 bet2_colour='1' bet3_dozen=0
+#    Time: 4 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Expected result: bet1_wins='1'  bet2_wins='1'  bet3_wins='0'
+#    Time: 5 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Observed result: bet1_wins='1'  bet2_wins='1'  bet3_wins='0'
+#    Time: 5 ns  Iteration: 0  Instance: /win_tb
+# ** Note: -------------------------------------------
+#    Time: 5 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Test case 5: spin_result=32 bet1_value=33 bet2_colour='1' bet3_dozen=2
+#    Time: 5 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Expected result: bet1_wins='0'  bet2_wins='1'  bet3_wins='1'
+#    Time: 6 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Observed result: bet1_wins='0'  bet2_wins='1'  bet3_wins='1'
+#    Time: 6 ns  Iteration: 0  Instance: /win_tb
+# ** Note: -------------------------------------------
+#    Time: 6 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Test case 6: spin_result=32 bet1_value=32 bet2_colour='1' bet3_dozen=2
+#    Time: 6 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Expected result: bet1_wins='1'  bet2_wins='1'  bet3_wins='1'
+#    Time: 7 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Observed result: bet1_wins='1'  bet2_wins='1'  bet3_wins='1'
+#    Time: 7 ns  Iteration: 0  Instance: /win_tb
+# ** Note: -------------------------------------------
+#    Time: 7 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Test case 7: spin_result=0 bet1_value=0 bet2_colour='1' bet3_dozen=0
+#    Time: 7 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Expected result: bet1_wins='1'  bet2_wins='0'  bet3_wins='0'
+#    Time: 8 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Observed result: bet1_wins='1'  bet2_wins='0'  bet3_wins='1'
+#    Time: 8 ns  Iteration: 0  Instance: /win_tb
+# ** Failure: MISMATCH.  THERE IS A PROBLEM IN YOUR DESIGN THAT YOU NEED TO FIX
+#    Time: 8 ns  Iteration: 0  Process: /win_tb/line__107 File: C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_2.2/win_tb.vhd
+# Break in ForLoop loop at C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_2.2/win_tb.vhd line 157
+# Compile of win.vhd was successful.
+# Compile of win_tb.vhd was successful.
+# 2 compiles, 0 failed with no errors. 
+run
+# ** Note: -------------------------------------------
+#    Time: 8 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Test case 8: spin_result=0 bet1_value=1 bet2_colour='0' bet3_dozen=0
+#    Time: 8 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Expected result: bet1_wins='0'  bet2_wins='0'  bet3_wins='0'
+#    Time: 9 ns  Iteration: 0  Instance: /win_tb
+# ** Note: Observed result: bet1_wins='0'  bet2_wins='1'  bet3_wins='1'
+#    Time: 9 ns  Iteration: 0  Instance: /win_tb
+# ** Failure: MISMATCH.  THERE IS A PROBLEM IN YOUR DESIGN THAT YOU NEED TO FIX
+#    Time: 9 ns  Iteration: 0  Process: /win_tb/line__107 File: C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_2.2/win_tb.vhd
+# Break in ForLoop loop at C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_2.2/win_tb.vhd line 157
+# Compile of win.vhd was successful.
+# Compile of win_tb.vhd was successful.
+# 2 compiles, 0 failed with no errors. 
+run
+# ** Note: ================== ALL TESTS PASSED =============================
+#    Time: 9 ns  Iteration: 0  Instance: /win_tb

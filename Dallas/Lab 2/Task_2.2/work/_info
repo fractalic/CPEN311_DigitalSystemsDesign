@@ -1,0 +1,79 @@
+m255
+K3
+13
+cModel Technology
+dC:\Users\Dallas\Documents\School 2015 - 16\CPEN 311\Lab 2\Win_Project
+Ewin
+Z0 w1443070864
+Z1 DPx4 ieee 11 numeric_std 0 22 O3PF8EB`?j9=z7KT`fn941
+Z2 DPx3 std 6 textio 0 22 5>J:;AW>W0[[dW0I6EN1Q0
+Z3 DPx4 ieee 14 std_logic_1164 0 22 5=aWaoGZSMWIcH0i^f`XF1
+Z4 dC:\Users\Dallas\Documents\School 2015 - 16\CPEN 311\Lab 2\Task_2.2
+Z5 8C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_2.2/win.vhd
+Z6 FC:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_2.2/win.vhd
+l0
+L20
+VT7CJSQghPS6VQXJPA:HXJ3
+Z7 OV;C;10.1d;51
+33
+Z8 !s108 1443070864.942000
+Z9 !s90 -reportprogress|300|-work|work|-2008|-explicit|C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_2.2/win.vhd|
+Z10 !s107 C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_2.2/win.vhd|
+Z11 o-work work -2008 -explicit -O0
+Z12 tExplicit 1
+!s100 c0YARTo:@>Vg:8eBN6E``2
+!i10b 1
+Abehavioural
+R1
+R2
+R3
+DEx4 work 3 win 0 22 T7CJSQghPS6VQXJPA:HXJ3
+l32
+L30
+V6c0gE=6S;GnmTl1b1TgGE0
+R7
+33
+R8
+R9
+R10
+R11
+R12
+!s100 J01nf:W@DA1HfUj@MW[K03
+!i10b 1
+Ewin_tb
+Z13 w1443069780
+R1
+R2
+R3
+R4
+Z14 8C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_2.2/win_tb.vhd
+Z15 FC:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_2.2/win_tb.vhd
+l0
+L19
+VlzZ83i=^lKkhCV1o?of[z2
+!s100 KQX6JHRmT^lW5EcReIaA60
+R7
+32
+!i10b 1
+Z16 !s108 1443070865.658000
+Z17 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_2.2/win_tb.vhd|
+Z18 !s107 C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_2.2/win_tb.vhd|
+Z19 o-work work -2002 -explicit -O0
+R12
+Abehavioural
+R1
+R2
+R3
+Z20 DEx4 work 6 win_tb 0 22 lzZ83i=^lKkhCV1o?of[z2
+l87
+L25
+Z21 VdJ;oAfPk7dPH7S^L=]]ES0
+Z22 !s100 ;=od8iF7Z;Ei_>hF]5XI[3
+R7
+32
+!i10b 1
+R16
+R17
+R18
+R19
+R12

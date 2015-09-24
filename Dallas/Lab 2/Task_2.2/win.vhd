@@ -41,7 +41,7 @@ BEGIN
     
     case bet2_colour is
     when '1' => -- red
-      if (spin_result_latched < 11) or (spin_result_latched > 18 and spin_result_latched < 29) then -- half the set
+      if (spin_result_latched < 11 and spin_result_latched > 0) or (spin_result_latched > 18 and spin_result_latched < 29) then -- half the set
         if spin_result_latched mod 2 = 0 then
           bet2_wins <= '0'; -- number is even / black
         else bet2_wins <= '1'; -- number is odd / red
@@ -53,7 +53,7 @@ BEGIN
         end if;
       end if;
     when '0' => -- black, opposite win logic to red
-      if (spin_result_latched < 11) or (spin_result_latched > 18 and spin_result_latched < 29) then -- half the set
+      if (spin_result_latched < 11 and spin_result_latched > 0) or (spin_result_latched > 18 and spin_result_latched < 29) then -- half the set
         if spin_result_latched mod 2 = 0 then
           bet2_wins <= '1'; -- number is even / black
         else bet2_wins <= '0'; -- number is odd / red
@@ -69,7 +69,7 @@ BEGIN
     
     case bet3_dozen is
     when "00" => -- first dozen
-      if spin_result_latched < 13 then
+      if spin_result_latched < 13 and spin_result_latched > 0 then
         bet3_wins <= '1';
       else bet3_wins <= '0';
       end if;
