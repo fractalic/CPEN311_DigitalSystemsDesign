@@ -1,0 +1,190 @@
+m255
+K3
+13
+cModel Technology
+dC:\Users\Dallas\Documents\School 2015 - 16\CPEN 311\Lab 2\Task4
+Edigit7seg
+Z0 w1443115644
+Z1 DPx4 ieee 11 numeric_std 0 22 O3PF8EB`?j9=z7KT`fn941
+Z2 DPx3 std 6 textio 0 22 5>J:;AW>W0[[dW0I6EN1Q0
+Z3 DPx4 ieee 14 std_logic_1164 0 22 5=aWaoGZSMWIcH0i^f`XF1
+Z4 dC:\Users\Dallas\Documents\School 2015 - 16\CPEN 311\Lab 2\Task5
+Z5 8C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/digit7seg.vhd
+Z6 FC:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/digit7seg.vhd
+l0
+L18
+V<DIg_j1oigFB^^`6P:5IW0
+Z7 OV;C;10.1d;51
+33
+Z8 !s108 1443117557.520000
+Z9 !s90 -reportprogress|300|-work|work|-2008|-explicit|C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/digit7seg.vhd|
+Z10 !s107 C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/digit7seg.vhd|
+Z11 o-work work -2008 -explicit -O0
+Z12 tExplicit 1
+!s100 H0aH4Eh29@=;S@d6m<?RE3
+!i10b 1
+Abehavioral
+R1
+R2
+R3
+DEx4 work 9 digit7seg 0 22 <DIg_j1oigFB^^`6P:5IW0
+l27
+L26
+VDYPIB?o``6]2GG<0EMS3j3
+R7
+33
+R8
+R9
+R10
+R11
+R12
+!s100 ]jJYMV9@H`=dEfH;^bRNn3
+!i10b 1
+Enew_balance
+Z13 w1443075244
+R1
+R2
+R3
+R4
+Z14 8C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/new_balance.vhd
+Z15 FC:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/new_balance.vhd
+l0
+L17
+VQ5NzJzT9Q[[V0OU55X;6g0
+R7
+33
+Z16 !s108 1443117558.022000
+Z17 !s90 -reportprogress|300|-work|work|-2008|-explicit|C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/new_balance.vhd|
+Z18 !s107 C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/new_balance.vhd|
+R11
+R12
+!s100 ZOGBXNB`;nEl45CWPTl:G1
+!i10b 1
+Abehavioural
+R1
+R2
+R3
+DEx4 work 11 new_balance 0 22 Q5NzJzT9Q[[V0OU55X;6g0
+l31
+L30
+V@izZQSfD9n4n84^efK:_n3
+R7
+33
+R16
+R17
+R18
+R11
+R12
+!s100 <BHE2TVBn>hiGYW`Jgl8H1
+!i10b 1
+Eroulette
+Z19 w1443117560
+R1
+R2
+R3
+R4
+Z20 8C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/roulette.vhd
+Z21 FC:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/roulette.vhd
+l0
+L20
+Vzj[Qk5Wb;f0z>NfbY7^`e2
+R7
+33
+Z22 !s108 1443117560.806000
+Z23 !s90 -reportprogress|300|-work|work|-2008|-explicit|C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/roulette.vhd|
+Z24 !s107 C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/roulette.vhd|
+R11
+R12
+!s100 a67hSQN7Po7jO81UBA6mZ1
+!i10b 1
+Astructural
+R1
+R2
+R3
+DEx4 work 8 roulette 0 22 zj[Qk5Wb;f0z>NfbY7^`e2
+l38
+L37
+VLzGQNbKTIL3N<KCG9SR8E1
+R7
+33
+R22
+R23
+R24
+R11
+R12
+!s100 OTkXdXXNCNKm=<UJ>ISBb1
+!i10b 1
+Espinwheel
+Z25 w1443116931
+R1
+R2
+R3
+R4
+Z26 8C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/spinwheel.vhd
+Z27 FC:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/spinwheel.vhd
+l0
+L30
+V<ZjF=0GEmJ]R:V0eKzOe03
+R7
+33
+Z28 !s108 1443117561.351000
+Z29 !s90 -reportprogress|300|-work|work|-2008|-explicit|C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/spinwheel.vhd|
+Z30 !s107 C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/spinwheel.vhd|
+R11
+R12
+!s100 ?zm:T1L12?h;e>1Cl@2Jz3
+!i10b 1
+Abehavioral
+R1
+R2
+R3
+DEx4 work 9 spinwheel 0 22 <ZjF=0GEmJ]R:V0eKzOe03
+l44
+L37
+VlbKcf1O>fjCXoEMc9IX?F1
+!s100 Nhl;T_;Q@G<YENZ<]><[61
+R7
+33
+R28
+R29
+R30
+R11
+R12
+!i10b 1
+Ewin
+Z31 w1443070864
+R1
+R2
+R3
+R4
+Z32 8C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/win.vhd
+Z33 FC:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/win.vhd
+l0
+L20
+VT7CJSQghPS6VQXJPA:HXJ3
+!s100 c0YARTo:@>Vg:8eBN6E``2
+R7
+33
+!i10b 1
+Z34 !s108 1443117562.195000
+Z35 !s90 -reportprogress|300|-work|work|-2008|-explicit|C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/win.vhd|
+Z36 !s107 C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/win.vhd|
+R11
+R12
+Abehavioural
+R1
+R2
+R3
+Z37 DEx4 work 3 win 0 22 T7CJSQghPS6VQXJPA:HXJ3
+l32
+L30
+Z38 V6c0gE=6S;GnmTl1b1TgGE0
+Z39 !s100 J01nf:W@DA1HfUj@MW[K03
+R7
+33
+!i10b 1
+R34
+R35
+R36
+R11
+R12
