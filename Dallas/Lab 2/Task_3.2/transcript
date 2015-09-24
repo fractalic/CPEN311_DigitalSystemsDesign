@@ -1,0 +1,101 @@
+# Compile of new_balance.vhd failed with 15 errors.
+# Compile of new_balance_tb.vhd was successful.
+# 2 compiles, 1 failed with 15 errors. 
+# Compile of new_balance.vhd failed with 14 errors.
+# Compile of new_balance.vhd failed with 4 errors.
+# Compile of new_balance.vhd failed with 15 errors.
+# Compile of new_balance.vhd failed with 4 errors.
+# Compile of new_balance.vhd failed with 4 errors.
+# Compile of new_balance.vhd failed with 3 errors.
+# Compile of new_balance.vhd failed with 3 errors.
+# Compile of new_balance.vhd failed with 3 errors.
+# Compile of new_balance.vhd failed with 1 errors.
+# Compile of new_balance.vhd failed with 2 errors.
+# Compile of new_balance.vhd failed with 2 errors.
+# Compile of new_balance.vhd failed with 2 errors.
+# Compile of new_balance.vhd failed with 2 errors.
+casdf
+# invalid command name "casdf"
+# Compile of new_balance.vhd was successful with warnings.
+# Compile of new_balance.vhd was successful with warnings.
+# Compile of new_balance.vhd failed with 3 errors.
+# Compile of new_balance.vhd failed with 3 errors.
+# Compile of new_balance.vhd was successful with warnings.
+# Compile of new_balance.vhd was successful with warnings.
+# Compile of new_balance.vhd was successful with warnings.
+# Compile of new_balance.vhd failed with 1 errors.
+# Compile of new_balance.vhd failed with 13 errors.
+# Compile of new_balance.vhd was successful.
+# Compile of new_balance.vhd failed with 1 errors.
+# Compile of new_balance.vhd was successful.
+# Compile of new_balance.vhd was successful.
+# Compile of new_balance.vhd was successful.
+# Compile of new_balance_tb.vhd was successful.
+# 2 compiles, 0 failed with no errors. 
+vsim work.new_balance_tb
+# vsim work.new_balance_tb 
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.new_balance_tb(behavioural)
+# Loading work.new_balance(behavioural)
+# ** Warning: (vsim-8683) Uninitialized out port /new_balance_tb/dut/new_money(11 downto 0) has no driver.
+# 
+# This port will contribute value (UUUUUUUUUUUU) to the signal network.
+# 
+run
+# ** Note: -------------------------------------------
+#    Time: 0 ps  Iteration: 0  Instance: /new_balance_tb
+# ** Note: Test case 0: money=16 value1=0 value2=0 value3=0 bet1_wins='1' bet2_wins='1' bet3_wins='1'
+#    Time: 0 ps  Iteration: 0  Instance: /new_balance_tb
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 1 ns  Iteration: 0  Instance: /new_balance_tb
+# ** Note: Expected result= 16  Actual result= 0
+#    Time: 1 ns  Iteration: 0  Instance: /new_balance_tb
+# ** Warning: NUMERIC_STD."=": metavalue detected, returning FALSE
+#    Time: 1 ns  Iteration: 0  Instance: /new_balance_tb
+# ** Failure: MISMATCH.  THERE IS A PROBLEM IN YOUR DESIGN THAT YOU NEED TO FIX
+#    Time: 1 ns  Iteration: 0  Process: /new_balance_tb/line__112 File: C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_3.2/new_balance_tb.vhd
+# Break in ForLoop loop at C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_3.2/new_balance_tb.vhd line 167
+quite -sim
+# invalid command name "quite"
+quit - sim
+# unknown switch: - sim
+quit -sim
+# Compile of new_balance.vhd was successful.
+# Compile of new_balance.vhd failed with 1 errors.
+# Compile of new_balance.vhd failed with 1 errors.
+# Compile of new_balance.vhd failed with 1 errors.
+# Compile of new_balance.vhd failed with 1 errors.
+# Compile of new_balance.vhd was successful.
+# Compile of new_balance.vhd failed with 1 errors.
+# Compile of new_balance.vhd failed with 4 errors.
+# Compile of new_balance.vhd was successful.
+vsim work.new_balance_tb
+# vsim work.new_balance_tb 
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.new_balance_tb(behavioural)
+# Loading work.new_balance(behavioural)
+# ** Warning: (vsim-8683) Uninitialized out port /new_balance_tb/dut/new_money(11 downto 0) has no driver.
+# 
+# This port will contribute value (UUUUUUUUUUUU) to the signal network.
+# 
+run
+# ** Note: -------------------------------------------
+#    Time: 0 ps  Iteration: 0  Instance: /new_balance_tb
+# ** Note: Test case 0: money=16 value1=0 value2=0 value3=0 bet1_wins='1' bet2_wins='1' bet3_wins='1'
+#    Time: 0 ps  Iteration: 0  Instance: /new_balance_tb
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 1 ns  Iteration: 0  Instance: /new_balance_tb
+# ** Note: Expected result= 16  Actual result= 0
+#    Time: 1 ns  Iteration: 0  Instance: /new_balance_tb
+# ** Warning: NUMERIC_STD."=": metavalue detected, returning FALSE
+#    Time: 1 ns  Iteration: 0  Instance: /new_balance_tb
+# ** Failure: MISMATCH.  THERE IS A PROBLEM IN YOUR DESIGN THAT YOU NEED TO FIX
+#    Time: 1 ns  Iteration: 0  Process: /new_balance_tb/line__112 File: C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_3.2/new_balance_tb.vhd
+# Break in ForLoop loop at C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_3.2/new_balance_tb.vhd line 167
+quit -sim

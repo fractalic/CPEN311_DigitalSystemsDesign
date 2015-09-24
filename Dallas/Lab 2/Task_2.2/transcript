@@ -102,3 +102,6 @@ run
 run
 # ** Note: ================== ALL TESTS PASSED =============================
 #    Time: 9 ns  Iteration: 0  Instance: /win_tb
+quit-sim
+# invalid command name "quit-sim"
+quit -sim
