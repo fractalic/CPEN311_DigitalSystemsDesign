@@ -57,6 +57,8 @@ BEGIN
         balance := balance + (to_unsigned(2, 9) * value3);
       when others => balance := balance - unsigned_value3; -- loss of bet amount
       end case;
+      
+      new_money <= balance;
         
   end process;
   

@@ -4,7 +4,7 @@ K3
 cModel Technology
 dC:\Users\Dallas\Documents\School 2015 - 16\CPEN 311\Lab 2\Task_2.2
 Enew_balance
-Z0 w1443074880
+Z0 w1443075244
 Z1 DPx4 ieee 11 numeric_std 0 22 O3PF8EB`?j9=z7KT`fn941
 Z2 DPx3 std 6 textio 0 22 5>J:;AW>W0[[dW0I6EN1Q0
 Z3 DPx4 ieee 14 std_logic_1164 0 22 5=aWaoGZSMWIcH0i^f`XF1
@@ -18,7 +18,7 @@ VQ5NzJzT9Q[[V0OU55X;6g0
 Z7 OV;C;10.1d;51
 33
 !i10b 1
-Z8 !s108 1443074880.897000
+Z8 !s108 1443075244.917000
 Z9 !s90 -reportprogress|300|-work|work|-2008|-explicit|C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_3.2/new_balance.vhd|
 Z10 !s107 C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task_3.2/new_balance.vhd|
 Z11 o-work work -2008 -explicit -O0
@@ -30,8 +30,8 @@ R3
 Z13 DEx4 work 11 new_balance 0 22 Q5NzJzT9Q[[V0OU55X;6g0
 l31
 L30
-V>[48H<:X_]bnJ9dSY?XzC2
-!s100 ARZKHf7oF`ASH=78^h=Ui1
+V@izZQSfD9n4n84^efK:_n3
+!s100 <BHE2TVBn>hiGYW`Jgl8H1
 R7
 33
 !i10b 1
