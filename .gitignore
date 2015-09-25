@@ -25,3 +25,6 @@
 **/work/
 _info
 _vmake
+
+*.DS_STORE
+._*
