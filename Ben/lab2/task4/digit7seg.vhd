@@ -5,16 +5,10 @@ USE IEEE.NUMERIC_STD.ALL;
 LIBRARY WORK;
 USE WORK.ALL;
 
------------------------------------------------------
+---
+-- Convert a number to a human-readable pattern for a 7-segment display.
+-- effects: seg7 is wired to a bit pattern representing the number.
 --
---  This block will contain a decoder to decode a 4-bit number
---  to a 7-bit vector suitable to drive a HEX dispaly
---
---  It is a purely combinational block (think Pattern 1) and
---  is similar to a block you designed in Lab 1.
---
---------------------------------------------------------
-
 ENTITY digit7seg IS
     PORT(
           digit : IN  UNSIGNED(3 DOWNTO 0);  -- number 0 to 0xF
