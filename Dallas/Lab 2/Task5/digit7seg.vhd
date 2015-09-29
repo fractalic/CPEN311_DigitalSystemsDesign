@@ -61,7 +61,7 @@ BEGIN
     when "1101" => seg7 <= D;
     when "1110" => seg7 <= E;
     when "1111" => seg7 <= F;
-    when others => seg7 <= "0000000"; -- null value
+    when others => seg7 <= "1111111"; -- null value
     end case;
   end process;
 
