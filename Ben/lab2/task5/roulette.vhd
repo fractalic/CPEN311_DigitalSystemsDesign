@@ -90,8 +90,15 @@ end component;
 component spinwheel is
     port(
         fast_clock   : in  std_logic;
-        resetb       : in  std_logic; -- asynchronous
+        resetb       : in  std_logic; -- asynchronous, active low
         spin_result  : out unsigned(5 downto 0)
+    );
+end component;
+
+component bcd_converter is
+    port(
+        number               : in unsigned(11 downto 0);
+        binary_coded_decimal : out unsigned(15 downto 0)
     );
 end component;
 
@@ -103,11 +110,11 @@ begin
     hex4 <= "1111111";
     hex5 <= "1111111";
     hex6_converter : digit7seg port map (
-                        hex_digit => spin_result_latched(3 downto 0),
+                        hex_digit    => spin_result_latched(3 downto 0),
                         seg7_pattern => hex6
                      );
     hex7_converter : digit7seg port map (
-                        hex_digit => "00" & spin_result_latched(5 downto 4),
+                        hex_digit    => "00" & spin_result_latched(5 downto 4),
                         seg7_pattern => hex7
                      );
 
@@ -122,14 +129,18 @@ begin
 
     gen_money_digits:
     for I in 1 to 3 generate
-        money_digit : digit7seg port map (hex_digit => unsigned(new_money(4*I-1 downto 4*I-4)),
-                                          seg7_pattern => hex_array(7*I-1 downto 7*I-7));
+        money_digit : digit7seg port map (
+                        hex_digit    => unsigned(new_money(4*I-1 downto 4*I-4)),
+                        seg7_pattern => hex_array(7*I-1 downto 7*I-7)
+                      );
     end generate gen_money_digits;
 
-    compute_balance : new_balance port map (money => money, value1 => bet1_amount,
-                                            value2 => bet2_amount, value3 => bet3_amount,
-                                            bet1_wins => bet1_wins, bet2_wins => bet2_wins,
-                                            bet3_wins => bet3_wins, new_money => new_money);
+    compute_balance : new_balance port map (
+                        money     => money,       value1    => bet1_amount,
+                        value2    => bet2_amount, value3    => bet3_amount,
+                        bet1_wins => bet1_wins,   bet2_wins => bet2_wins,
+                        bet3_wins => bet3_wins,   new_money => new_money
+                      );
 
     compute_win : win port map (spin_result_latched => spin_result_latched,
                                 bet1_value => bet1_value, bet2_colour => bet2_colour,
