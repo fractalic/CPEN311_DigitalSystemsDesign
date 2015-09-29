@@ -16,15 +16,6 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Compiling entity digit7seg
 -- Compiling architecture behavioral of digit7seg
 
-} {} {}} {C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/spinwheel.vhd} {1 {vcom -work work -2008 -explicit {C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/spinwheel.vhd}
-Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
--- Loading package STANDARD
--- Loading package TEXTIO
--- Loading package std_logic_1164
--- Loading package NUMERIC_STD
--- Compiling entity spinwheel
--- Compiling architecture behavioral of spinwheel
-
 } {} {}} {C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/new_balance.vhd} {1 {vcom -work work -2008 -explicit {C:/Users/Dallas/Documents/School 2015 - 16/CPEN 311/Lab 2/Task5/new_balance.vhd}
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package STANDARD

@@ -22,6 +22,7 @@ ENTITY roulette IS
 		KEY : IN STD_LOGIC_VECTOR(3 downto 0);  -- includes slow_clock and reset
 		SW : IN STD_LOGIC_VECTOR(17 downto 0);
 		LEDG : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);  -- ledg
+		LEDR : OUT STD_LOGIC_VECTOR(17 DOWNTO 0); -- ledr
 		HEX7 : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);  -- digit 7
 		HEX6 : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);  -- digit 6
 		HEX5 : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);  -- digit 5
@@ -67,16 +68,16 @@ ARCHITECTURE structural OF roulette IS
 		         spin_result  : OUT UNSIGNED(5 downto 0));  -- current value of the wheel
   end component;
   
-  signal bet1_value : std_logic_vector(5 downto 0); -- number to bet on
-  signal bet1_amount: std_logic_vector(2 downto 0); -- amount of bet $$$
+  signal bet1_value : unsigned(5 downto 0); -- number to bet on
+  signal bet1_amount: unsigned(2 downto 0); -- amount of bet $$$
   signal bet1_wins : std_logic;
   
   signal bet2_colour : std_logic; -- red / black bet
-  signal bet2_amount: std_logic_vector(2 downto 0);
+  signal bet2_amount: unsigned(2 downto 0);
   signal bet2_wins : std_logic;
   
-  signal bet3_dozen : std_logic_vector(1 downto 0); -- dozen to bet on
-  signal bet3_amount: std_logic_vector(2 downto 0);
+  signal bet3_dozen : unsigned(1 downto 0); -- dozen to bet on
+  signal bet3_amount: unsigned(2 downto 0);
   signal bet3_wins : std_logic;
   
   signal resetb : std_logic;
@@ -94,15 +95,35 @@ ARCHITECTURE structural OF roulette IS
   
  begin
  
-	slow_clock <= KEY(0);   
-	resetb <= KEY(1); 
+	slow_clock <= not KEY(0);   
+	resetb <= not KEY(1); 
 	
 	new_money1 <= new_money(3 downto 0);
 	new_money2 <= new_money(7 downto 4);
 	new_money3 <= new_money(11 downto 8);
+	
+   LEDG(0) <= bet1_wins;
+	LEDG(1) <= bet2_wins;
+	LEDG(2) <= bet3_wins;
+	
+	LEDR <= SW;
  
    process(slow_clock) begin
 	if rising_edge(slow_clock) then
+		bet1_value <= unsigned(SW(8 downto 3)); -- number to bet on
+		bet1_amount <= unsigned(SW(2 downto 0)); -- amount of bet 35:1
+     
+		bet2_colour <= SW(12); -- red / black
+		bet2_amount <= unsigned(SW(11 downto 9)); -- amount of bet 1:1
+     
+		bet3_dozen <= unsigned(SW(17 downto 16)); -- dozen to bet on
+		bet3_amount <= unsigned(SW(15 downto 13)); -- amount of bet 2:1
+
+		spin_result1 <= spin_result(3 downto 0);
+		spin_result2 <= "00" & spin_result(5 downto 4);
+			
+		money <= new_money;
+		
 		if resetb = '1' then -- reset everything!
         money <= "000000100000"; -- $32 start wallet
         bet1_value <= "000000"; -- initialize number bet
@@ -111,34 +132,14 @@ ARCHITECTURE structural OF roulette IS
         bet2_amount <= "000"; -- initialize bet2 amount
         bet3_dozen <= "00"; -- initialize dozen bet
         bet3_amount <= "000"; -- initialize bet3 amount
-		  LEDG(0) <= '0';
-		  LEDG(1) <= '0';
-		  LEDG(2) <= '0';
-		
-		else
-		bet1_value <= SW(8 downto 3); -- number to bet on
-		bet1_amount <= SW(2 downto 0); -- amount of bet 35:1
-     
-		bet2_colour <= SW(12); -- red / black
-		bet2_amount <= SW(11 downto 9); -- amount of bet 1:1
-     
-		bet3_dozen <= SW(17 downto 16); -- dozen to bet on
-		bet3_amount <= SW(15 downto 13); -- amount of bet 2:1
-
-		spin_result1 <= spin_result(3 downto 0);
-		spin_result2 <= "00" & spin_result(5 downto 4);
-			
-		money <= new_money;
-		  
-	   LEDG(0) <= bet1_wins;
-	   LEDG(1) <= bet2_wins;
-	   LEDG(2) <= bet3_wins;
+		  spin_result1 <= spin_result(3 downto 0);
+		  spin_result2 <= "00" & spin_result(5 downto 4);
 		end if;
 	end if;
    end process;
       
-     WIN_BLOCK : win port map(unsigned(spin_result), unsigned(bet1_value), bet2_colour, unsigned(bet3_dozen), bet1_wins, bet2_wins, bet3_wins);
-     BALANCE_BLOCK : new_balance port map(money, unsigned(bet1_amount), unsigned(bet2_amount), unsigned(bet3_amount), bet1_wins, bet2_wins, bet3_wins, new_money);
+     WIN_BLOCK : win port map(spin_result, bet1_value, bet2_colour, bet3_dozen, bet1_wins, bet2_wins, bet3_wins);
+     BALANCE_BLOCK : new_balance port map(money, bet1_amount, bet2_amount, bet3_amount, bet1_wins, bet2_wins, bet3_wins, new_money);
      SPINWHEEL_BLOCK : spinwheel port map(CLOCK_27, resetb, spin_result);
        
      DIGIT_BLOCK0 : digit7seg port map(new_money1, HEX0);

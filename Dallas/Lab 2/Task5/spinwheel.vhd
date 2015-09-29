@@ -48,7 +48,7 @@ BEGIN
 
                 -- Asynchronous reset, follows pattern 3 in Slide Set 3
 
-		IF resetb='0' THEN
+		IF resetb='1' THEN
 			wheel_internal <= 0;
 
                 -- If not reset, check for a rising clock edge
