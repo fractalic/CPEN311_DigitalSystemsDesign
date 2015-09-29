@@ -18,7 +18,6 @@ USE WORK.ALL;
 --          LEDG(0) is high if player wins on bet1.
 --          LEDG(1) is high if player wins on bet2.
 --          LEDG(2) is high if player wins on bet3.
---          
 entity roulette is
 	port(   CLOCK_27 : in STD_LOGIC; -- the fast clock for spinning wheel
 		KEY : in STD_LOGIC_VECTOR(3 downto 0);  -- includes slow_clock and reset
@@ -103,8 +102,14 @@ begin
     hex3 <= "1111111";
     hex4 <= "1111111";
     hex5 <= "1111111";
-    hex6_converter : digit7seg port map (hex_digit => spin_result_latched(3 downto 0), seg7_pattern => hex6);
-    hex7_converter : digit7seg port map (hex_digit => "00" & spin_result_latched(5 downto 4), seg7_pattern => hex7);
+    hex6_converter : digit7seg port map (
+                        hex_digit => spin_result_latched(3 downto 0),
+                        seg7_pattern => hex6
+                     );
+    hex7_converter : digit7seg port map (
+                        hex_digit => "00" & spin_result_latched(5 downto 4),
+                        seg7_pattern => hex7
+                     );
 
     ledg(0) <= bet1_wins;
     ledg(1) <= bet2_wins;
@@ -131,7 +136,8 @@ begin
                                 bet3_dozen => bet3_dozen, bet1_wins => bet1_wins,
                                 bet2_wins => bet2_wins, bet3_wins => bet3_wins);
 
-    spin_the_wheel : spinwheel port map (fast_clock => clock_27, resetb => resetb, spin_result => spin_result);
+    spin_the_wheel : spinwheel port map (fast_clock => clock_27, resetb => resetb,
+                                         spin_result => spin_result);
 
     process(slow_clock)
     begin

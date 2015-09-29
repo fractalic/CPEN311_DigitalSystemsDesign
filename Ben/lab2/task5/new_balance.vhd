@@ -5,15 +5,11 @@ USE IEEE.NUMERIC_STD.ALL;
 LIBRARY WORK;
 USE WORK.ALL;
 
---------------------------------------------------------------
---
--- Skeleton file for new_balance subblock.  This block is purely
--- combinational (think Pattern 1 in the slides) and calculates the
--- new balance after adding winning bets and subtracting losing bets.
---
----------------------------------------------------------------
-
-
+---
+--  Given three European Roulette bets and a player's current
+--  assets in play, calculate the player's new assets.
+--  effects: new_money represents a positive integer equal
+--           to the player's new total assets in play.
 ENTITY new_balance IS
   PORT(money : in unsigned(11 downto 0);  -- Current balance before this spin
        value1 : in unsigned(2 downto 0);  -- Value of bet 1

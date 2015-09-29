@@ -6,25 +6,12 @@ LIBRARY WORK;
 USE WORK.ALL;
 
 --------------------------------------------------------------
---
--- Lucky you !!  We are giving you this code.  There is nothing
--- here you need to add or write.  
---
--- This block simulates a spinning wheel.  It consists of 
--- counter that is always counting.  The output is the value of 
--- the count (it will be sampled outside of the block when the
--- user hits the slow_clock switch).  In a real roulette wheel,
--- the wheel is arranged in the following pattern:
---
--- 0-32-15-19-4-21-2-25-17-34-6-27-13-36-11-30-8-23-10-5-24-16-
--- -33-1-20-14-31-9-22-18-29-7-28-12-35-3-26
---
--- In our implementation, we count in numeric order to make the
--- implementation simpler.  Since we count many many times before the
--- user samples, this has the same effect.  If you wanted, you
--- could modify this block so it counts in the above order, 
--- but it wouldn't really change the play of the game.
---
+---
+--	A simulated European roulette wheel.
+--	requires: fast_clock is a square wave with a period small enough
+--			  as to be untimable by humans.
+--			  resetb is an active low signal.
+--	effects: Sets spin_result to a number from 0 to 35.
 ---------------------------------------------------------------
 
 ENTITY spinwheel IS
