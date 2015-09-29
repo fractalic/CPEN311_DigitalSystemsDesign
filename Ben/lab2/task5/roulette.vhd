@@ -103,8 +103,8 @@ begin
     hex3 <= "1111111";
     hex4 <= "1111111";
     hex5 <= "1111111";
-    hex6_converter : digit7seg port map (hex_digit => "00" & spin_result_latched(5 downto 4), seg7_pattern => hex6);
-    hex7_converter : digit7seg port map (hex_digit => spin_result_latched(3 downto 0), seg7_pattern => hex7);
+    hex6_converter : digit7seg port map (hex_digit => spin_result_latched(3 downto 0), seg7_pattern => hex6);
+    hex7_converter : digit7seg port map (hex_digit => "00" & spin_result_latched(5 downto 4), seg7_pattern => hex7);
 
     ledg(0) <= bet1_wins;
     ledg(1) <= bet2_wins;
@@ -112,12 +112,12 @@ begin
 
     ledr <= sw;
 
+    slow_clock <= not key(0);
     resetb <= key(1);
-    slow_clock <= key(0);
 
     gen_money_digits:
     for I in 1 to 3 generate
-        money_digit : digit7seg port map (hex_digit => unsigned(sw(4*I-1 downto 4*I-4)),
+        money_digit : digit7seg port map (hex_digit => unsigned(new_money(4*I-1 downto 4*I-4)),
                                           seg7_pattern => hex_array(7*I-1 downto 7*I-7));
     end generate gen_money_digits;
 
@@ -137,7 +137,7 @@ begin
     begin
         if (rising_edge(slow_clock))
         then
-            if (resetb = '1')
+            if (resetb = '0')
             then
                 bet1_value <= to_unsigned(0, bet1_value'length);
                 bet2_colour <= '0';
