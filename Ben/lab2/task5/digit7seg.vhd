@@ -37,7 +37,7 @@ begin
             when to_unsigned(8, hex_digit'length)  => seg7_sig <= "0000000";
             when to_unsigned(9, hex_digit'length)  => seg7_sig <= "0010000";
             when to_unsigned(10, hex_digit'length) => seg7_sig <= "0001000";
-            when to_unsigned(11, hex_digit'length) => seg7_sig <= "0000111";
+            when to_unsigned(11, hex_digit'length) => seg7_sig <= "0000011";
             when to_unsigned(12, hex_digit'length) => seg7_sig <= "1000110";
             when to_unsigned(13, hex_digit'length) => seg7_sig <= "0100001";
             when to_unsigned(14, hex_digit'length) => seg7_sig <= "0000110";
