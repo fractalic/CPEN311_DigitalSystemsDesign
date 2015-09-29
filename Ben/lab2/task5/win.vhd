@@ -13,13 +13,14 @@ USE WORK.ALL;
 ---------------------------------------------------------------
 
 ENTITY win IS
-	PORT(spin_result_latched : in unsigned(5 downto 0);  -- result of the spin (the winning number)
-             bet1_value : in unsigned(5 downto 0); -- value for bet 1
-             bet2_colour : in std_logic;  -- colour for bet 2
-             bet3_dozen : in unsigned(1 downto 0);  -- dozen for bet 3
-             bet1_wins : out std_logic;  -- whether bet 1 is a winner
-             bet2_wins : out std_logic;  -- whether bet 2 is a winner
-             bet3_wins : out std_logic); -- whether bet 3 is a winner
+	PORT(
+			spin_result_latched : in unsigned(5 downto 0);  -- result of the spin (the winning number)
+            bet1_value : in unsigned(5 downto 0); -- value for bet 1
+            bet2_colour : in std_logic;  -- colour for bet 2
+            bet3_dozen : in unsigned(1 downto 0);  -- dozen for bet 3
+            bet1_wins : out std_logic;  -- whether bet 1 is a winner
+            bet2_wins : out std_logic;  -- whether bet 2 is a winner
+            bet3_wins : out std_logic); -- whether bet 3 is a winner
 END win;
 
 
