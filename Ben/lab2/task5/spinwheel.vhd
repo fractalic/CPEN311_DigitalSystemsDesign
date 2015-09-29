@@ -16,8 +16,8 @@ USE WORK.ALL;
 
 ENTITY spinwheel IS
 	PORT(
-		fast_clock : IN  STD_LOGIC;  -- This will be a 27 Mhz Clock
-		resetb : IN  STD_LOGIC;      -- asynchronous reset
+		fast_clock   : IN  STD_LOGIC;  -- This will be a 27 Mhz Clock
+		resetb       : IN  STD_LOGIC;      -- asynchronous reset
 		spin_result  : OUT UNSIGNED(5 downto 0));  -- current value of the wheel
 END;
 
@@ -35,13 +35,13 @@ BEGIN
 
                 -- Asynchronous reset, follows pattern 3 in Slide Set 3
 
-		IF resetb='0' THEN
+		IF (resetb ='0') THEN
 			wheel_internal <= 0;
 
                 -- If not reset, check for a rising clock edge
 
 		ELSIF RISING_EDGE(fast_clock) THEN
-			IF wheel_internal = 36 THEN
+			IF (wheel_internal = 36) THEN
 				wheel_internal <= 0;
 			ELSE
 				wheel_internal <= wheel_internal + 1;

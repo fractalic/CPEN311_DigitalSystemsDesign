@@ -11,7 +11,7 @@ USE WORK.ALL;
 --
 ENTITY digit7seg IS
     PORT(
-          hex_digit : IN  UNSIGNED(3 DOWNTO 0);  -- number 0 to 0xF
+          hex_digit    : IN  UNSIGNED(3 DOWNTO 0);  -- number 0 to 0xF
           seg7_pattern : OUT STD_LOGIC_VECTOR(6 DOWNTO 0)  -- one per segment
     );
 END;

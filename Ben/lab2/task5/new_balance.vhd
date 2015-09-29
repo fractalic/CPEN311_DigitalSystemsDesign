@@ -11,10 +11,10 @@ USE WORK.ALL;
 --  effects: new_money represents a positive integer equal
 --           to the player's new total assets in play.
 ENTITY new_balance IS
-  PORT(money : in unsigned(11 downto 0);  -- Current balance before this spin
-       value1 : in unsigned(2 downto 0);  -- Value of bet 1
-       value2 : in unsigned(2 downto 0);  -- Value of bet 2
-       value3 : in unsigned(2 downto 0);  -- Value of bet 3
+  PORT(money     : in unsigned(11 downto 0);  -- Current balance before this spin
+       value1    : in unsigned(2 downto 0);  -- Value of bet 1
+       value2    : in unsigned(2 downto 0);  -- Value of bet 2
+       value3    : in unsigned(2 downto 0);  -- Value of bet 3
        bet1_wins : in std_logic;  -- True if bet 1 is a winner
        bet2_wins : in std_logic;  -- True if bet 2 is a winner
        bet3_wins : in std_logic;  -- True if bet 3 is a winner
