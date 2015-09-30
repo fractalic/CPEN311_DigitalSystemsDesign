@@ -41,7 +41,8 @@ architecture structural of roulette is
 signal resetb              : std_logic;
 signal slow_clock          : std_logic;
 signal spin_result,
-       spin_result_latched : unsigned(5 downto 0);
+       spin_result_latched,
+       spin_result_latched_bcd : unsigned(5 downto 0);
 signal bet1_value          : unsigned(5 downto 0);
 signal bet2_colour         : std_logic;
 signal bet3_dozen          : unsigned(1 downto 0);
@@ -52,7 +53,8 @@ signal bet1_amount,
        bet2_amount,
        bet3_amount         : unsigned(2 downto 0);
 signal money,
-       new_money           : unsigned(11 downto 0);
+       new_money,
+       new_money_bcd       : unsigned(11 downto 0);
 signal hex_array           : std_logic_vector(27 downto 0);
 
 component new_balance is
@@ -109,12 +111,16 @@ begin
     hex3 <= "1111111";
     hex4 <= "1111111";
     hex5 <= "1111111";
+    convert_spin_to_bcd : bcd_converter port map (
+                            number               => "000000" & spin_result_latched,
+                            binary_coded_decimal(5 downto 0) => spin_result_latched_bcd
+                          );
     hex6_converter : digit7seg port map (
-                        hex_digit    => spin_result_latched(3 downto 0),
+                        hex_digit    => spin_result_latched_bcd(3 downto 0),
                         seg7_pattern => hex6
                      );
     hex7_converter : digit7seg port map (
-                        hex_digit    => "00" & spin_result_latched(5 downto 4),
+                        hex_digit    => "00" & spin_result_latched_bcd(5 downto 4),
                         seg7_pattern => hex7
                      );
 
