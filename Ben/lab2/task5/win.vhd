@@ -9,6 +9,9 @@ USE WORK.ALL;
 --
 --  Check three roulette bets against the a spin of a
 --  roulette wheel to see which bets win.
+--	
+--	requires: bet3_dozen never equals "11"
+--	effects: Set each winning bet to '1'; '0' otherwise.
 --
 ---------------------------------------------------------------
 
@@ -44,7 +47,9 @@ BEGIN
 	-- Get information about the spin to compare with bet2.
 	process(spin_result_latched)
 	begin
-	  -- Based on the section, even numbers may be red or black.
+	  -- Even numbers may be red or black, depending on their value.
+
+		spin_result_color_order <= '0';
 		if (spin_result_latched < 29) then
 			if (spin_result_latched < 19) then
 				if (spin_result_latched < 11) then
@@ -55,8 +60,6 @@ BEGIN
 			else
 				spin_result_color_order <= '1';
 			end if;
-		else
-			spin_result_color_order <= '0';
 		end if;
 	end process;
 	
@@ -64,6 +67,7 @@ BEGIN
 	process(spin_result_latched)
 	begin
 	  -- Determine which dozen contains the result.
+		spin_result_dozen <= "10";
 		if (spin_result_latched < 24) then
 			if (spin_result_latched < 12) then
 				if (spin_result_latched > 0) then
@@ -74,27 +78,22 @@ BEGIN
 			else
 				spin_result_dozen <= "01";
 			end if;
-		else
-			spin_result_dozen <= "10";
 		end if;
 	end process;
 	
 	-- Check for wins on bet 2 (red-black).
 	process(bet2_colour, spin_result_latched, spin_result_color_order)
 	begin
-	  if (spin_result_latched = 0) then
-	    bet2_wins <= '0';
-	  else
+	  	if (spin_result_latched = 0) then
+	    	bet2_wins <= '0';
+	  	else
+	  		bet2_wins <= '0';
     		if ((spin_result_latched mod 2) = 1) then
     			if (spin_result_color_order = bet2_colour) then
     				bet2_wins <= '1';
-    			else
-    				bet2_wins <= '0';
     			end if;
     		else
-    			if (spin_result_color_order = bet2_colour) then
-    				bet2_wins <= '0';
-    			else
+    			if (spin_result_color_order = not bet2_colour) then
     				bet2_wins <= '1';
     			end if;
     		end if;

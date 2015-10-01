@@ -18,7 +18,6 @@ USE WORK.ALL;
 --          LEDG(0) is high if player wins on bet1.
 --          LEDG(1) is high if player wins on bet2.
 --          LEDG(2) is high if player wins on bet3.
---          
 entity roulette is
 	port(   CLOCK_27 : in STD_LOGIC; -- the fast clock for spinning wheel
 		KEY : in STD_LOGIC_VECTOR(3 downto 0);  -- includes slow_clock and reset
@@ -42,7 +41,8 @@ architecture structural of roulette is
 signal resetb              : std_logic;
 signal slow_clock          : std_logic;
 signal spin_result,
-       spin_result_latched : unsigned(5 downto 0);
+       spin_result_latched,
+       spin_result_latched_bcd : unsigned(5 downto 0);
 signal bet1_value          : unsigned(5 downto 0);
 signal bet2_colour         : std_logic;
 signal bet3_dozen          : unsigned(1 downto 0);
@@ -53,7 +53,8 @@ signal bet1_amount,
        bet2_amount,
        bet3_amount         : unsigned(2 downto 0);
 signal money,
-       new_money           : unsigned(11 downto 0);
+       new_money,
+       new_money_bcd       : unsigned(11 downto 0);
 signal hex_array           : std_logic_vector(27 downto 0);
 
 component new_balance is
@@ -91,8 +92,15 @@ end component;
 component spinwheel is
     port(
         fast_clock   : in  std_logic;
-        resetb       : in  std_logic; -- asynchronous
+        resetb       : in  std_logic; -- asynchronous, active low
         spin_result  : out unsigned(5 downto 0)
+    );
+end component;
+
+component bcd_converter is
+    port(
+        number               : in unsigned(11 downto 0);
+        binary_coded_decimal : out unsigned(15 downto 0)
     );
 end component;
 
@@ -103,8 +111,18 @@ begin
     hex3 <= "1111111";
     hex4 <= "1111111";
     hex5 <= "1111111";
-    hex6_converter : digit7seg port map (hex_digit => spin_result_latched(3 downto 0), seg7_pattern => hex6);
-    hex7_converter : digit7seg port map (hex_digit => "00" & spin_result_latched(5 downto 4), seg7_pattern => hex7);
+    convert_spin_to_bcd : bcd_converter port map (
+                            number               => "000000" & spin_result_latched,
+                            binary_coded_decimal(5 downto 0) => spin_result_latched_bcd
+                          );
+    hex6_converter : digit7seg port map (
+                        hex_digit    => spin_result_latched_bcd(3 downto 0),
+                        seg7_pattern => hex6
+                     );
+    hex7_converter : digit7seg port map (
+                        hex_digit    => "00" & spin_result_latched_bcd(5 downto 4),
+                        seg7_pattern => hex7
+                     );
 
     ledg(0) <= bet1_wins;
     ledg(1) <= bet2_wins;
@@ -117,21 +135,26 @@ begin
 
     gen_money_digits:
     for I in 1 to 3 generate
-        money_digit : digit7seg port map (hex_digit => unsigned(new_money(4*I-1 downto 4*I-4)),
-                                          seg7_pattern => hex_array(7*I-1 downto 7*I-7));
+        money_digit : digit7seg port map (
+                        hex_digit    => unsigned(new_money(4*I-1 downto 4*I-4)),
+                        seg7_pattern => hex_array(7*I-1 downto 7*I-7)
+                      );
     end generate gen_money_digits;
 
-    compute_balance : new_balance port map (money => money, value1 => bet1_amount,
-                                            value2 => bet2_amount, value3 => bet3_amount,
-                                            bet1_wins => bet1_wins, bet2_wins => bet2_wins,
-                                            bet3_wins => bet3_wins, new_money => new_money);
+    compute_balance : new_balance port map (
+                        money     => money,       value1    => bet1_amount,
+                        value2    => bet2_amount, value3    => bet3_amount,
+                        bet1_wins => bet1_wins,   bet2_wins => bet2_wins,
+                        bet3_wins => bet3_wins,   new_money => new_money
+                      );
 
     compute_win : win port map (spin_result_latched => spin_result_latched,
                                 bet1_value => bet1_value, bet2_colour => bet2_colour,
                                 bet3_dozen => bet3_dozen, bet1_wins => bet1_wins,
                                 bet2_wins => bet2_wins, bet3_wins => bet3_wins);
 
-    spin_the_wheel : spinwheel port map (fast_clock => clock_27, resetb => resetb, spin_result => spin_result);
+    spin_the_wheel : spinwheel port map (fast_clock => clock_27, resetb => resetb,
+                                         spin_result => spin_result);
 
     process(slow_clock)
     begin
