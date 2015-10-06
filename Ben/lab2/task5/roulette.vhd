@@ -41,8 +41,8 @@ architecture structural of roulette is
 signal resetb              : std_logic;
 signal slow_clock          : std_logic;
 signal spin_result,
-       spin_result_latched,
-       spin_result_latched_bcd : unsigned(5 downto 0);
+       spin_result_latched : unsigned(5 downto 0);
+signal spin_result_latched_bcd : unsigned(7 downto 0);
 signal bet1_value          : unsigned(5 downto 0);
 signal bet2_colour         : std_logic;
 signal bet3_dozen          : unsigned(1 downto 0);
@@ -53,8 +53,8 @@ signal bet1_amount,
        bet2_amount,
        bet3_amount         : unsigned(2 downto 0);
 signal money,
-       new_money,
-       new_money_bcd       : unsigned(11 downto 0);
+       new_money           : unsigned(11 downto 0);
+signal new_money_bcd       : unsigned(15 downto 0);
 signal hex_array           : std_logic_vector(27 downto 0);
 
 component new_balance is
@@ -97,30 +97,31 @@ component spinwheel is
     );
 end component;
 
-component bcd_converter is
-    port(
-        number               : in unsigned(11 downto 0);
-        binary_coded_decimal : out unsigned(15 downto 0)
-    );
-end component;
-
 begin
     hex0 <= hex_array(6 downto 0);
     hex1 <= hex_array(13 downto 7);
     hex2 <= hex_array(20 downto 14);
-    hex3 <= "1111111";
+    hex3 <= hex_array(27 downto 21);
     hex4 <= "1111111";
     hex5 <= "1111111";
-    convert_spin_to_bcd : bcd_converter port map (
-                            number               => "000000" & spin_result_latched,
-                            binary_coded_decimal(5 downto 0) => spin_result_latched_bcd
-                          );
+    process(spin_result_latched)
+    variable spin_result_divided : unsigned(5 downto 0);
+    variable spin_result_mod : unsigned(5 downto 0);
+    begin
+        spin_result_divided := spin_result_latched;
+        spin_result_mod := spin_result_divided mod 10;
+        spin_result_latched_bcd(3 downto 0) <= spin_result_mod(3 downto 0);
+        spin_result_divided := spin_result_divided / 10;
+        spin_result_mod := spin_result_divided mod 10;
+        spin_result_latched_bcd(7 downto 4) <= spin_result_mod(3 downto 0);
+
+    end process;
     hex6_converter : digit7seg port map (
                         hex_digit    => spin_result_latched_bcd(3 downto 0),
                         seg7_pattern => hex6
                      );
     hex7_converter : digit7seg port map (
-                        hex_digit    => "00" & spin_result_latched_bcd(5 downto 4),
+                        hex_digit    => spin_result_latched_bcd(7 downto 4),
                         seg7_pattern => hex7
                      );
 
@@ -134,12 +135,31 @@ begin
     resetb <= key(1);
 
     gen_money_digits:
-    for I in 1 to 3 generate
+    for I in 1 to 4 generate
         money_digit : digit7seg port map (
-                        hex_digit    => unsigned(new_money(4*I-1 downto 4*I-4)),
+                        hex_digit    => unsigned(new_money_bcd(4*I-1 downto 4*I-4)),
                         seg7_pattern => hex_array(7*I-1 downto 7*I-7)
                       );
     end generate gen_money_digits;
+
+    process(new_money)
+    variable new_money_divided : unsigned(15 downto 0);
+    variable new_money_mod : unsigned(15 downto 0);
+    begin
+        new_money_divided := "0000" & new_money;
+        new_money_mod := new_money_divided mod 10;
+        new_money_bcd(3 downto 0) <= new_money_mod(3 downto 0);
+        new_money_divided := new_money_divided / 10;
+        new_money_mod := new_money_divided mod 10;
+        new_money_bcd(7 downto 4) <= new_money_mod(3 downto 0);
+        new_money_divided := new_money_divided / 10;
+        new_money_mod := new_money_divided mod 10;
+        new_money_bcd(11 downto 8) <= new_money_mod(3 downto 0);
+        new_money_divided := new_money_divided / 10;
+        new_money_mod := new_money_divided mod 10;
+        new_money_bcd(15 downto 12) <= new_money_mod(3 downto 0);
+
+    end process;
 
     compute_balance : new_balance port map (
                         money     => money,       value1    => bet1_amount,

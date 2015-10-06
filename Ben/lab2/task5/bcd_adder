@@ -1,0 +1,37 @@
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.NUMERIC_STD.ALL;
+
+LIBRARY WORK;
+USE WORK.ALL;
+
+---
+--  Determine the binary-coded decimal representation of a number.
+--  effects: binary_coded_decimal provides the bcd representation
+--           of number.
+ENTITY bcd_adder IS
+    PORT(
+          number               : IN  UNSIGNED(3 DOWNTO 0);  -- number 0 to 0xF
+          carry_in             : in  unsigned(2 downto 0);
+          binary_coded_decimal : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+          carry_out            : out unsigned(2 downto 0)
+    );
+END;
+
+
+ARCHITECTURE behavioral OF bcd_converter IS
+signal add_number_carry : unsigned(4 downto 0);
+begin
+    process(number,add_number_carry,carry_in)
+        variable mod_ten : unsigned(2 downto 0) := "000";
+        variable output_value : unsigned(4 downto 0) := "00000";
+    begin
+        add_number_carry <= number+carry_in;
+        mod_ten := add_number_carry mod 10;
+
+        output_value := add_number_carry - mod_ten;
+        binary_coded_decimal <= output_value(3 downto 0);
+        carry_out <= mod_ten;
+    end process;
+
+end;

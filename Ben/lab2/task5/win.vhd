@@ -68,8 +68,8 @@ BEGIN
 	begin
 	  -- Determine which dozen contains the result.
 		spin_result_dozen <= "10";
-		if (spin_result_latched < 24) then
-			if (spin_result_latched < 12) then
+		if (spin_result_latched < 25) then
+			if (spin_result_latched < 13) then
 				if (spin_result_latched > 0) then
 					spin_result_dozen <= "00";
 				else
