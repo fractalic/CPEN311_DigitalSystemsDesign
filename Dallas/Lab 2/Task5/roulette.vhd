@@ -85,22 +85,14 @@ ARCHITECTURE structural OF roulette IS
   
   signal money : unsigned(11 downto 0);
   signal new_money : unsigned(11 downto 0);
-  signal new_money1 : unsigned(3 downto 0);
-  signal new_money2 : unsigned(3 downto 0);
-  signal new_money3 : unsigned(3 downto 0);
   
   signal spin_result : unsigned(5 downto 0);
-  signal spin_result1 : unsigned(3 downto 0);
-  signal spin_result2 : unsigned(3 downto 0);
+  signal spin_result_latched : unsigned(5 downto 0);
   
  begin
  
 	slow_clock <= not KEY(0);   
 	resetb <= not KEY(1); 
-	
-	new_money1 <= new_money(3 downto 0);
-	new_money2 <= new_money(7 downto 4);
-	new_money3 <= new_money(11 downto 8);
 	
    LEDG(0) <= bet1_wins;
 	LEDG(1) <= bet2_wins;
@@ -118,11 +110,10 @@ ARCHITECTURE structural OF roulette IS
      
 		bet3_dozen <= unsigned(SW(17 downto 16)); -- dozen to bet on
 		bet3_amount <= unsigned(SW(15 downto 13)); -- amount of bet 2:1
-
-		spin_result1 <= spin_result(3 downto 0);
-		spin_result2 <= "00" & spin_result(5 downto 4);
 			
 		money <= new_money;
+		
+		spin_result_latched <= spin_result;
 		
 		if resetb = '1' then -- reset everything!
         money <= "000000100000"; -- $32 start wallet
@@ -132,23 +123,22 @@ ARCHITECTURE structural OF roulette IS
         bet2_amount <= "000"; -- initialize bet2 amount
         bet3_dozen <= "00"; -- initialize dozen bet
         bet3_amount <= "000"; -- initialize bet3 amount
-		  spin_result1 <= spin_result(3 downto 0);
-		  spin_result2 <= "00" & spin_result(5 downto 4);
+		  spin_result_latched <= spin_result;
 		end if;
 	end if;
    end process;
       
-     WIN_BLOCK : win port map(spin_result, bet1_value, bet2_colour, bet3_dozen, bet1_wins, bet2_wins, bet3_wins);
+     WIN_BLOCK : win port map(spin_result_latched, bet1_value, bet2_colour, bet3_dozen, bet1_wins, bet2_wins, bet3_wins);
      BALANCE_BLOCK : new_balance port map(money, bet1_amount, bet2_amount, bet3_amount, bet1_wins, bet2_wins, bet3_wins, new_money);
      SPINWHEEL_BLOCK : spinwheel port map(CLOCK_27, resetb, spin_result);
        
-     DIGIT_BLOCK0 : digit7seg port map(new_money1, HEX0);
-     DIGIT_BLOCK1 : digit7seg port map(new_money2, HEX1);
-     DIGIT_BLOCK2 : digit7seg port map(new_money3, HEX2);
+     DIGIT_BLOCK0 : digit7seg port map(new_money(3 downto 0), HEX0);
+     DIGIT_BLOCK1 : digit7seg port map(new_money(7 downto 4), HEX1);
+     DIGIT_BLOCK2 : digit7seg port map(new_money(11 downto 8), HEX2);
      HEX3 <= "1111111";
      HEX4 <= "1111111";
      HEX5 <= "1111111";
-     DIGIT_BLOCK6 : digit7seg port map(spin_result1, HEX6);
-     DIGIT_BLOCK7 : digit7seg port map(spin_result2, HEX7);
+     DIGIT_BLOCK6 : digit7seg port map(spin_result_latched(3 downto 0), HEX6);
+     DIGIT_BLOCK7 : digit7seg port map(("00" & spin_result_latched(5 downto 4)), HEX7);
    
 END;
