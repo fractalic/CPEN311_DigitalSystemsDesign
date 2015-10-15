@@ -104,6 +104,8 @@ begin
     hex3 <= hex_array(27 downto 21);
     hex4 <= "1111111";
     hex5 <= "1111111";
+    -- compute spin_result_latched in base 10 
+    -- convert to binary coded decimal
     process(spin_result_latched)
     variable spin_result_divided : unsigned(5 downto 0);
     variable spin_result_mod : unsigned(5 downto 0);
@@ -142,6 +144,7 @@ begin
                       );
     end generate gen_money_digits;
 
+    -- Compute new_money in base 10.
     process(new_money)
     variable new_money_divided : unsigned(15 downto 0);
     variable new_money_mod : unsigned(15 downto 0);
