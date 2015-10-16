@@ -42,6 +42,7 @@ begin
   clock       <= clock_50;
   reset_async <= not key(3);
   plot   <= not KEY(0);
+  colour <= y(2 downto 0);
 
   -- includes the vga adapter, which should be in your project 
 
@@ -81,17 +82,6 @@ begin
           x_count := "00000000";
           y_count := "0000000";
         end if;
-        case (y_count mod 8) is
-          when "0000000" => colour <= "001";
-          when "0000001" => colour <= "010";
-          when "0000010" => colour <= "011";
-          when "0000011" => colour <= "100";
-          when "0000100" => colour <= "101";
-          when "0000101" => colour <= "110";
-          when "0000110" => colour <= "111";
-          when "0000111" => colour <= "000";
-          when others => colour <= "000";
-        end case;
       end if;
     end process;
 end rtl;
