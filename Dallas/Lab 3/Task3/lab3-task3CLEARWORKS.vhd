@@ -43,19 +43,23 @@ architecture rtl of lab3 is
   signal initx  : std_logic;
   signal XDONE  : std_logic;
   signal YDONE  : std_logic;
+  signal gray   : std_logic_vector(2 downto 0);
+  signal current_state, next_state : std_logic_vector(2 downto 0);
+  signal i      : integer;
+  signal CS_DONE: std_logic;
 
 begin
 
   resetn <= not KEY(3);
   ledr <= sw;
-  --plot <= not KEY(0);
   
-  process(clock_50)
+  process(all)
 	variable Yplace : unsigned(6 downto 0);
 	variable Xplace : unsigned(7 downto 0);
-	variable colourtype : unsigned(2 downto 0);
+	variable x0, x1, y0, y1 , dx, dy, sx, sy, error, error2: signed(7 downto 0);
 	begin
 		if rising_edge(clock_50) then
+			colour <= "100"; -- reset screen to black
 			if (INITY = '1') then
 				Yplace := "0000000";
 			elsif (LOADY = '1') then -- update y at the end of a line
@@ -67,49 +71,88 @@ begin
 				Xplace := "00000000";
 			else
 				Xplace := Xplace + 1;
-				colourtype := colourtype + 1;
 			end if;
 			x <= std_logic_vector(Xplace); -- update the place of X onscreen
 			
-			if (resetn = '1' or colourtype > "111") then -- changes colour every line
-				colourtype := "000";
-				colour <= "000";
-			else
-				colour <= std_logic_vector(colourtype mod 8);
-			end if;
-			
 			if (Yplace = 119) then
 				YDONE <= '1';
-				LOADY <= '0';
 			else
 				YDONE <= '0';
 			end if;
 			
 			if (Xplace = 159) then -- start Xplace at 0 again
-				LOADY <= '1'; -- only update Y at the end of a line
-				INITX <= '1';
 				XDONE <= '1';
 			else
 				XDONE <= '0';
-				LOADY <= '0';
 			end if;
-			
-			if (resetn = '1') then
-				INITX <= '1';
-				INITY <= '1';
-			else
-				INITX <= '0';
-				INITY <= '0';
-			end if;
-			
-			if(YDONE = '1' and XDONE = '1') then
-				PLOT <= '0';
-			else
-				PLOT <= '1';
-			end if;
-		
-		end if;
+		end if; -- this is the check for resetn
   end process;
+  
+  process(all) begin
+	case current_state is
+		when "000" => -- reset state
+			next_state <= "001";
+			INITX <= '1';
+			INITY <= '1';
+			LOADY <= '1';
+			PLOT <= '0';
+		when "001" => -- update x position / draw x line
+			next_state <= "001";
+			INITX <= '0';
+			INITY <= '0';
+			LOADY <= '0';
+			PLOT <= '1';
+			if YDONE = '1' and XDONE = '1' then
+				next_state <= "011"; -- finished clearing screen
+			elsif XDONE = '1' then
+				next_state <= "010"; -- update y when x is done
+			end if;
+		when "010" => -- update y position
+			next_state <= "001";
+			INITX <= '1';
+			INITY <= '0';
+			LOADY <= '1';
+			PLOT <= '0';
+		when "011" => -- clearing screen is done!
+			next_state <= "011";
+			INITX <= '1';
+			INITY <= '1';
+			LOADY <= '0';
+			PLOT <= '0';
+		when others => next_state <= "000"; -- catch-all
+	end case;
+	
+	if resetn = '0' then
+		next_state <= "000";
+	end if;
+  end process;
+  
+  process(clock_50) begin -- update states
+	if rising_edge(clock_50) then
+		current_state <= next_state;
+	end if;
+  end process;
+  
+	process(all) begin -- 'returns' a gray code with different values of i
+		if i mod 8 = 0 then
+			gray <= "000";
+		elsif i mod 8 = 1 then
+			gray <= "001";
+		elsif i mod 8 = 2 then
+			gray <= "011";
+		elsif i mod 8 = 3 then
+			gray <= "010";
+		elsif i mod 8 = 4 then
+			gray <= "110";
+		elsif i mod 8 = 5 then
+			gray <= "111";
+		elsif i mod 8 = 6 then
+			gray <= "101";
+		elsif i mod 8 = 7 then
+			gray <= "100";
+		end if;
+	end process;
+  
 
   vga_u0 : vga_adapter
     generic map(RESOLUTION => "160x120") 
