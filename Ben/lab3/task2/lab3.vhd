@@ -41,6 +41,7 @@ begin
   
   clock       <= clock_50;
   reset_async <= not key(3);
+  plot   <= not KEY(0);
 
   -- includes the vga adapter, which should be in your project 
 
@@ -68,23 +69,31 @@ begin
       x <= std_logic_vector(x_count);
       y <= std_logic_vector(y_count);
       if (rising_edge(clock)) then
-        x_count := x_count + 1;
+        y_count := y_count + 1;
+        if (y_count mod 120 = 0) then
+          y_count := "0000000";
+          x_count := x_count + 1;
+        end if;
         if (x_count mod 160 = 0) then
-          y_count := y_count + 1;
-          if (y_count mod 120 = 0) then
-            y_count := "0000000";
-          end if;
           x_count := "00000000";
         end if;
-        
-      end if;
-      if (reset_async = '1') then
-        x_count := "00000000";
-        y_count := "0000000";
+        if (reset_async = '1') then
+          x_count := "00000000";
+          y_count := "0000000";
+        end if;
+        case (y_count mod 8) is
+          when "0000000" => colour <= "001";
+          when "0000001" => colour <= "010";
+          when "0000010" => colour <= "011";
+          when "0000011" => colour <= "100";
+          when "0000100" => colour <= "101";
+          when "0000101" => colour <= "110";
+          when "0000110" => colour <= "111";
+          when "0000111" => colour <= "000";
+          when others => colour <= "000";
+        end case;
       end if;
     end process;
-
-
-end RTL;
+end rtl;
 
 
