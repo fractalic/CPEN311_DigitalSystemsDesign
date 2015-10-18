@@ -45,17 +45,65 @@ architecture rtl of lab3 is
          load_y0,
          load_y1       : std_logic;
 
+  signal ctrl_colour_graycode,
+         ctrl_err_dy,
+         ctrl_err_dx
+                       : std_logic;
+
+  signal clear_screen,
+         init_x,
+         init_y        : std_logic;
+
+  signal load_i,
+         load_j,
+         load_k        : std_logic;
+
+  signal init_i,
+         init_j,
+         init_k        : std_logic;
+
+  signal load_err,
+         load_err2     : std_logic;
+
+  signal init_err      : std_logic;
+
+  signal x,x0,x1       : unsigned(7 downto 0);
+  signal dx            : signed(x'left downto x'right);
+  signal sx            : signed(1 downto 0);
+  signal y,y0,y1       : unsigned(6 downto 0);
+  signal dy            : signed(y'left downto y'right);
+  signal sy            : signed(1 downto 0);
+  signal colour        : std_logic_vector(2 downto 0);
+
+  signal i             : unsigned(x'left downto x'right);
+  signal j             : unsigned(y'left downto y'right);
+  signal k             : unsigned(3 downto 0);
+
+  signal err           : signed(7 downto 0);
+  signal err2          : signed(err'left+1 downto err'right);
+
+  signal plot          : std_logic;
+
+  signal stateClock    : std_logic;
+
+  signal COLOUR_RESET  : std_logic_vector(2 downto 0);
+
 begin
+
+  COLOUR_RESET <= "001";
+
+  stateClock <= key(0);
 
   -- Datapath registers.
   process(stateClock)
+  variable err_interim : signed(err'left downto err'right);
   begin
     if (rising_edge(stateClock)) then
       if (load_colour = '1') then
-        if (colour_graycode) then
-          colour <= graycode;
+        if (ctrl_colour_graycode = '1') then
+          colour <= std_logic_vector(k(2 downto 0));
         else
-          colour <= COLOUR_BLACK;
+          colour <= COLOUR_RESET;
         end if;
       end if;
 
@@ -90,7 +138,7 @@ begin
           if (init_x = '1') then
             x <= x0;
           else
-            x <= x + sx;
+            x <= unsigned(signed(x) + sx);
           end if;
         end if;
       end if;
@@ -102,7 +150,7 @@ begin
           if (init_y = '1') then
             y <= y0;
           else
-            y <= y + sy;
+            y <= unsigned(signed(y) + sy);
           end if;
         end if;
       end if;
@@ -111,18 +159,63 @@ begin
         x0 <= to_unsigned(0, x0'length);
       end if;
 
-      if load_x1 = '1') then
+      if (load_x1 = '1') then
         x1 <= to_unsigned(159, x0'length);
       end if;
 
       if (load_y0 = '1') then
-        y0 <= to_unsigned(k,y0'length - 4)*to_unsigned(8, 4);
+        -- multiply k by 8
+        y0 <= k&"000";
       end if;
 
       if (load_y1 = '1') then
         y1 <= to_unsigned(120,y1'length)
-              - to_unsigned(k,y1'length - 4)*to_unsigned(8, 4)
+              - k&"000";
+      end if;
 
+      if (load_i = '1') then
+        if (init_i = '1') then
+          i <= to_unsigned(0, i'length);
+        else
+          i <= i + 1;
+        end if;
+      end if;
+
+      if (load_j = '1') then
+        if (init_j = '1') then
+          j <= to_unsigned(0, j'length);
+        else
+          j <= j + 1;
+        end if;
+      end if;
+
+      if (load_k = '1') then
+        if (init_k = '1') then
+          k <= to_unsigned(0, k'length);
+        else
+          k <= k + 1;
+        end if;
+      end if;
+
+      if (load_err2 = '1') then
+        -- multiply err by 2
+        err2 <= err & '0';
+      end if;
+
+      if (load_err = '1') then
+        if (init_err = '1') then
+          err <= dx - dy;
+        else
+          err_interim := err;
+          if (ctrl_err_dy = '1') then
+            err_interim := err_interim - dy;
+          end if;
+          if (ctrl_err_dx = '1') then
+            err_interim := err_interim + dx;
+          end if ;
+          err <= err_interim;
+        end if;
+      end if;
 
     end if;
   end process;
@@ -134,8 +227,8 @@ begin
     port map(resetn    => KEY(3),
              clock     => clock_50,
              colour    => colour,
-             x         => std_logic_vector(xpos),
-             y         => std_logic_vector(ypos),
+             x         => std_logic_vector(x),
+             y         => std_logic_vector(y),
              plot      => plot,
              VGA_R     => VGA_R,
              VGA_G     => VGA_G,
