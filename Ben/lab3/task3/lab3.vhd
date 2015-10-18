@@ -218,10 +218,10 @@ begin
       if (loaderr = '1') then
         newErr := err;
         if (E2GreaterThanMinusDY = '1') then
-          newErr := newErr + dx;
+          newErr := newErr - dy;
         end if;
         if (E2LessThanDX = '1') then
-          newErr := newErr - dy;
+          newErr := newErr + dx;
         end if;
         err <= newErr;
       end if;
@@ -229,7 +229,7 @@ begin
       if (loadxpos = '1') then
         if (initxpos = '1') then
           newXpos := signed(x0);
-        elsif (E2LessThanDX = '1') then
+        elsif (E2GreaterThanMinusDY = '1') then
           newXpos := xpos + sx;
         else
           newXpos := xpos;
@@ -240,7 +240,7 @@ begin
       if (loadypos = '1') then
         if (initypos = '1') then
           ypos <= signed(y0);
-        elsif (E2GreaterThanMinusDY = '1') then
+        elsif (E2LessThanDX = '1') then
           ypos <= ypos + sy;
         else
           ypos <= ypos;
