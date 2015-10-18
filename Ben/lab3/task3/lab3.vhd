@@ -205,9 +205,9 @@ begin
   colour <= std_logic_vector(ypos(2 downto 0));
 
   x0 <= to_unsigned(10,x0'length);
-  x1 <= to_unsigned(20,x1'length);
+  x1 <= to_unsigned(100,x1'length);
   y0 <= to_unsigned(10,y0'length);
-  y1 <= to_unsigned(10,y1'length);
+  y1 <= to_unsigned(20,y1'length);
 
   process(stateClock)
   variable newErr : signed(err'left downto err'right);
@@ -218,10 +218,10 @@ begin
       if (loaderr = '1') then
         newErr := err;
         if (E2GreaterThanMinusDY = '1') then
-          newErr := newErr - dy;
+          newErr := newErr + dx;
         end if;
         if (E2LessThanDX = '1') then
-          newErr := newErr + dx;
+          newErr := newErr - dy;
         end if;
         err <= newErr;
       end if;
@@ -229,8 +229,10 @@ begin
       if (loadxpos = '1') then
         if (initxpos = '1') then
           newXpos := signed(x0);
-        else
+        elsif (E2LessThanDX = '1') then
           newXpos := xpos + sx;
+        else
+          newXpos := xpos;
         end if;
         xpos <= newXpos;
       end if;
@@ -238,8 +240,10 @@ begin
       if (loadypos = '1') then
         if (initypos = '1') then
           ypos <= signed(y0);
-        else
+        elsif (E2GreaterThanMinusDY = '1') then
           ypos <= ypos + sy;
+        else
+          ypos <= ypos;
         end if;
       end if;
 
