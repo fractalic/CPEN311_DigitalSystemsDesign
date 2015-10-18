@@ -61,7 +61,7 @@ architecture rtl of lab3 is
 
   signal clock, reset_async : std_logic;
 
-  type vga_state is (line_init, line_analyse, line_step, line_plot, done);
+  type vga_state is (line_init, line_analyse, line_step, line_plot, done, i_init);
 
   signal drawState : vga_state;
 
@@ -72,7 +72,6 @@ architecture rtl of lab3 is
 begin
 
   -- includes the vga adapter, which should be in your project 
-
   vga_u0 : vga_adapter
     generic map(RESOLUTION => "160x120") 
     port map(resetn    => KEY(3),
@@ -96,7 +95,11 @@ begin
   process(stateClock)
   begin
     if (rising_edge(stateClock)) then
+	 if key(3) = '0' then
+		drawState <= i_init;
+	 end if;
       case drawState is
+		  when i_init => drawState <= line_init;
         when line_init => drawState <= line_plot;
         when line_plot =>	
           if (lineDone = '1') then
@@ -110,7 +113,7 @@ begin
         when line_analyse => drawState <= line_step;
         when line_step    => drawState <= line_plot;
 		  when done			  => drawState <= done;
-        when others       => drawState <= line_init;
+        when others       => drawState <= i_init;
       end case;
     end if;
   end process;
@@ -155,6 +158,8 @@ begin
   process(drawState)
   begin
     case drawState is
+		when i_init =>
+			i <= 0;
       when line_init =>
         initerr <= '1';
         loaderr <= '1';
@@ -208,7 +213,7 @@ begin
   colour <= gray; --std_logic_vector(ypos(2 downto 0)); -- changed to use the graycode
 
   x0 <= to_unsigned(0,x0'length);
-  x1 <= to_unsigned(100,x1'length);
+  x1 <= to_unsigned(159,x1'length);
   y0 <= to_unsigned((i*8),y0'length);
   y1 <= to_unsigned(120 - (i*8),y1'length);
 
@@ -242,12 +247,13 @@ begin
 
       if (loadypos = '1') then
         if (initypos = '1') then
-          ypos <= signed(y0);
+          newYpos := signed(y0);--ypos <= signed(y0);
         elsif (E2LessThanDX = '1') then
-          ypos <= ypos + sy;
+          newYpos := ypos + sy;--ypos <= ypos + sy;
         else
-          ypos <= ypos;
+          newYpos := ypos;--ypos <= ypos;
         end if;
+		  ypos <= newYpos;
       end if;
 
       if (loade2 = '1') then
