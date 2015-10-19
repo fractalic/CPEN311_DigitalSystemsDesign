@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity lab3 is
+entity lab3_singleline is
   port(CLOCK_50            : in  std_logic;
        KEY                 : in  std_logic_vector(3 downto 0);
        SW                  : in  std_logic_vector(17 downto 0);
@@ -13,9 +13,9 @@ entity lab3 is
        VGA_BLANK           : out std_logic;
        VGA_SYNC            : out std_logic;
        VGA_CLK             : out std_logic);
-end lab3;
+end lab3_singleline;
 
-architecture rtl of lab3 is
+architecture rtl of lab3_singleline is
 
  --Component from the Verilog file: vga_adapter.v
 
@@ -205,9 +205,9 @@ begin
   colour <= std_logic_vector(ypos(2 downto 0));
 
   x0 <= to_unsigned(10,x0'length);
-  x1 <= to_unsigned(100,x1'length);
-  y0 <= to_unsigned(10,y0'length);
-  y1 <= to_unsigned(20,y1'length);
+  x1 <= to_unsigned(60,x1'length);
+  y0 <= to_unsigned(50,y0'length);
+  y1 <= to_unsigned(60,y1'length);
 
   process(stateClock)
   variable newErr : signed(err'left downto err'right);

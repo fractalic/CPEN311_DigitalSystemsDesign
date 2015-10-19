@@ -90,9 +90,11 @@ architecture rtl of lab3 is
 
   signal stateClock    : std_logic;
 
-  type vga_state is (vga_init, vga_plot, vga_nextRow, vga_nextCol,
-                     vga_mapLine, vga_initLine, vga_errLine, vga_plotLine,
-                     vga_computeLine, vga_stepLine, vga_nextLine, vga_freeze);
+  type vga_state is (vga_reset, vga_init, vga_plot, vga_nextRow, vga_nextCol,
+                     vga_beginLines, vga_mapLine, vga_initLine,
+                     vga_errLine, vga_plotLine,
+                     vga_computeLine, vga_stepLine,
+                     vga_nextLine, vga_freeze);
 
   signal drawState : vga_state;
 
@@ -111,13 +113,14 @@ begin
     end if;
   end process;
 
-  stateClock <= clock_counter(14);
+  stateClock <= clock_counter(13);
+  --stateClock <= key(0);
   --ledg(x'left downto x'right) <= std_logic_vector(x);
   --ledr(y'left downto y'right) <= std_logic_vector(y);
 
-  -- incorrect output
-  ledg(dx'left downto dx'right) <= std_logic_vector(dx);
-  ledr(dy'left downto dy'right) <= std_logic_vector(dy);
+  
+  ledg(k'left downto k'right) <= std_logic_vector(k);
+  ledr(err2'left downto dy'right) <= std_logic_vector(err2);
 
   --ledg(x0'left downto x0'right) <= std_logic_vector(x0);
   --ledr(y0'left downto y0'right) <= std_logic_vector(y0);
@@ -143,18 +146,6 @@ begin
     else
       ctrl_col_done <= '0';
     end if;
-
-    if (err2 > -1*dy) then
-      ctrl_err_dy <= '1';
-    else
-      ctrl_err_dy <= '0';
-    end if;
-
-    if (err2 < dx) then
-      ctrl_err_dx <= '1';
-    else
-      ctrl_err_dx <= '0';
-    end if;
   end process;
 
   -- Datapath registers.
@@ -164,8 +155,8 @@ begin
     if (rising_edge(stateClock)) then
       if (load_colour = '1') then
         if (ctrl_colour_graycode = '1') then
-          --colour <= std_logic_vector(k(2 downto 0));
-          colour <= "101";
+          colour <= '1'&std_logic_vector(k(1 downto 0));
+          --colour <= "101";
         else
           colour <= COLOUR_RESET;
         end if;
@@ -226,19 +217,19 @@ begin
 
       if (load_x1 = '1') then
         --x1 <= to_unsigned(159, x1'length);
-        x1 <= to_unsigned(20, x0'length);
+        x1 <= to_unsigned(60, x0'length);
       end if;
 
       if (load_y0 = '1') then
         -- multiply k by 8
         --y0 <= k&"000";
-        y0 <= to_unsigned(50, y0'length);
+        y0 <= to_unsigned(50, y0'length)+k;
       end if;
 
       if (load_y1 = '1') then
         --y1 <= to_unsigned(120,y1'length)
         --      - (k&"000");
-        y1 <= to_unsigned(60, y0'length);
+        y1 <= to_unsigned(60, y0'length)-k;
       end if;
 
       if (load_i = '1') then
@@ -261,7 +252,7 @@ begin
         if (init_k = '1') then
           k <= to_unsigned(0, k'length);
         else
-          k <= k + 1;
+          k <= k + to_unsigned(1, k'length);
         end if;
       end if;
 
@@ -280,7 +271,7 @@ begin
           end if;
           if (ctrl_err_dx = '1') then
             err_interim := err_interim + dx;
-          end if ;
+          end if;
           err <= err_interim;
         end if; 
       end if;
@@ -290,73 +281,135 @@ begin
 
   -- Controller.
   process(stateClock, key(3))
-  variable
-         load_colour_var,
-         load_sx_var,
-         load_dx_var,
-         load_x_var,
-         load_x0_var,
-         load_x1_var,
-         load_sy_var,
-         load_dy_var,
-         load_y_var,
-         load_y0_var,
-         load_y1_var,
-         ctrl_colour_graycode_var,
-         ctrl_err_dy_var,
-         ctrl_err_dx_var,
-         ctrl_col_done_var,
-         ctrl_row_done_var,
-         ctrl_line_done_var,
-         clear_screen_var,
-         init_x_var,
-         init_y_var,
-         load_i_var,
-         load_j_var,
-         load_k_var,
-         init_i_var,
-         init_j_var,
-         init_k_var,
-         load_err_var,
-         load_err2_var,
-         init_err_var,
-         plot_var
-                : std_logic := '0';
   begin
     if (key(3) = '0') then
-      drawState <= vga_init;
+      drawState <= vga_reset;
     elsif(rising_edge(stateClock)) then
-      load_colour_var := '0';
-      load_sx_var := '0';
-      load_dx_var := '0';
-      load_x_var := '0';
-      load_x0_var := '0';
-      load_x1_var := '0';
-      load_sy_var := '0';
-      load_dy_var := '0';
-      load_y_var := '0';
-      load_y0_var := '0';
-      load_y1_var := '0';
-      ctrl_colour_graycode_var := '0';
-      clear_screen_var := '0';
-      init_x_var := '0';
-      init_y_var := '0';
-      load_i_var := '0';
-      load_j_var := '0';
-      load_k_var := '0';
-      init_i_var := '0';
-      init_j_var := '0';
-      init_k_var := '0';
-      load_err_var := '0';
-      load_err2_var := '0';
-      init_err_var := '0';
-      plot_var := '0';
 
       case drawState is
+        when vga_reset =>
+          drawState <= vga_init;
         when vga_init =>
-          --drawState <= vga_plot;
+          drawState <= vga_plot;
+
+        when vga_plot =>
+          if (ctrl_col_done = '1') then
+            if (ctrl_row_done = '1') then
+              drawState <= vga_beginLines;
+            else
+              drawState <= vga_nextCol;
+            end if;
+          else
+            drawState <= vga_nextRow;
+          end if;
+
+        when vga_nextRow =>
+          drawState <= vga_plot;
+
+        when vga_nextCol =>
+          drawState <= vga_plot;
+
+        when vga_beginLines =>
           drawState <= vga_mapLine;
 
+        when vga_mapLine =>
+          drawState <= vga_initLine;
+
+        when vga_initLine =>
+          drawState <= vga_errLine;
+
+        when vga_errLine =>
+          drawState <= vga_plotLine;
+
+        when vga_plotLine =>
+          if (ctrl_line_done = '1') then
+            drawState <= vga_nextLine;
+          else
+            drawState <= vga_computeLine;
+          end if;
+
+        when vga_computeLine =>
+          drawState <= vga_stepLine;
+
+        when  vga_stepLine =>
+          drawState <= vga_plotLine;
+
+        when vga_nextLine =>
+          if (k = to_unsigned(13,k'length)) then
+            drawState <= vga_freeze;
+          else
+            drawState <= vga_mapLine;
+          end if;
+
+        when vga_freeze =>
+          drawState <= vga_freeze;
+
+        when others => drawState <= vga_reset;
+      end case;
+    end if;
+  end process;
+
+  -- output logic
+  process(drawState)
+  variable
+   load_colour_var,
+   load_sx_var,
+   load_dx_var,
+   load_x_var,
+   load_x0_var,
+   load_x1_var,
+   load_sy_var,
+   load_dy_var,
+   load_y_var,
+   load_y0_var,
+   load_y1_var,
+   ctrl_colour_graycode_var,
+   ctrl_err_dy_var,
+   ctrl_err_dx_var,
+   clear_screen_var,
+   init_x_var,
+   init_y_var,
+   load_i_var,
+   load_j_var,
+   load_k_var,
+   init_i_var,
+   init_j_var,
+   init_k_var,
+   load_err_var,
+   load_err2_var,
+   init_err_var,
+   plot_var : std_logic := '0';
+  begin
+    load_colour_var := '0';
+    load_sx_var := '0';
+    load_dx_var := '0';
+    load_x_var := '0';
+    load_x0_var := '0';
+    load_x1_var := '0';
+    load_sy_var := '0';
+    load_dy_var := '0';
+    load_y_var := '0';
+    load_y0_var := '0';
+    load_y1_var := '0';
+    ctrl_colour_graycode_var := '0';
+    clear_screen_var := '0';
+    ctrl_err_dx_var := '0';
+    ctrl_err_dy_var := '0';
+    init_x_var := '0';
+    init_y_var := '0';
+    load_i_var := '0';
+    load_j_var := '0';
+    load_k_var := '0';
+    init_i_var := '0';
+    init_j_var := '0';
+    init_k_var := '0';
+    load_err_var := '0';
+    load_err2_var := '0';
+    init_err_var := '0';
+    plot_var := '0';
+    case drawState is
+        when vga_reset =>
+        when vga_init =>
           load_colour_var := '1';
           load_i_var := '1';
           init_i_var := '1';
@@ -366,16 +419,6 @@ begin
           --ledg <= "00000001";
 
         when vga_plot =>
-          if (ctrl_col_done = '1') then
-            if (ctrl_row_done = '1') then
-              drawState <= vga_mapLine;
-            else
-              drawState <= vga_nextCol;
-            end if;
-          else
-            drawState <= vga_nextRow;
-          end if;
-
           plot_var := '1';
           clear_screen_var := '1';
           load_x_var   := '1';
@@ -384,35 +427,28 @@ begin
           --ledg <= "00000010";
 
         when vga_nextRow =>
-          drawState <= vga_plot;
-
           load_j_var := '1';
           --ledg <= "10000011";
 
         when vga_nextCol =>
-          drawState <= vga_plot;
-
           load_i_var := '1';
           load_j_var := '1';
           init_j_var := '1';
 
           --ledg <= "00000011";
+        when vga_beginLines =>
+          load_k_var  := '1';
+          init_k_var  := '1';
 
         when vga_mapLine =>
-          drawState <= vga_initLine;
-
           load_x0_var := '1';
           load_x1_var := '1';
           load_y0_var := '1';
           load_y1_var := '1';
-          load_k_var  := '1';
-          init_k_var  := '1';
 
           --ledg <= "00000100";
 
         when vga_initLine =>
-          drawState <= vga_errLine;
-
           load_dx_var := '1';
           load_sx_var := '1';
           load_x_var  := '1';
@@ -425,42 +461,32 @@ begin
           --ledg <= "00000101";
 
         when vga_errLine =>
-          drawState <= vga_plotLine;
-
           load_err_var := '1';
           init_err_var := '1';
+          ctrl_colour_graycode_var := '1';
+          load_colour_var := '1';
 
           --ledg <= "00000110";
 
         when vga_plotLine =>
-          if (ctrl_line_done = '1') then
-            drawState <= vga_nextLine;
-          else
-            drawState <= vga_computeLine;
-          end if;
-
-          ctrl_colour_graycode_var := '1';
-          load_colour_var := '1';
           plot_var := '1';
 
           --ledg <= "00000111";
 
         when vga_computeLine =>
-          drawState <= vga_stepLine;
-
           load_err2_var := '1';
 
           --ledg <= "00001000";
 
         when  vga_stepLine =>
-          drawState <= vga_plotLine;
-
-          if (ctrl_err_dy = '1') then
+          if (err2 > -1*dy) then
+            ctrl_err_dy_var := '1';
             load_err_var := '1';
             load_x_var  := '1';
           end if;
 
-          if (ctrl_err_dx = '1') then
+          if (err2 < dx) then
+            ctrl_err_dx_var := '1';
             load_err_var := '1';
             load_y_var  := '1';
           end if;
@@ -468,52 +494,44 @@ begin
           --ledg <= "00001001";
 
         when vga_nextLine =>
-          if (k = to_unsigned(13,k'length)) then
-            drawState <= vga_freeze;
-          else
-            drawState <= vga_mapLine;
-          end if;
-
           load_k_var := '1';
 
           --ledg <= "00001010";
 
         when vga_freeze =>
-          drawState <= vga_freeze;
 
           --ledg <= "00001011";
 
-        when others => drawState <= vga_init;
+        when others =>
       end case;
-
-        load_colour <= load_colour_var;
-        load_sx <= load_sx_var;
-        load_dx <= load_dx_var;
-        load_x <= load_x_var;
-        load_x0 <= load_x0_var;
-        load_x1 <= load_x1_var;
-        load_sy <= load_sy_var;
-        load_dy <= load_dy_var;
-        load_y <= load_y_var;
-        load_y0 <= load_y0_var;
-        load_y1 <= load_y1_var;
-        ctrl_colour_graycode <= ctrl_colour_graycode_var;
-        clear_screen <= clear_screen_var;
-        init_x <= init_x_var;
-        init_y <= init_y_var;
-        load_i <= load_i_var;
-        load_j <= load_j_var;
-        load_k <= load_k_var;
-        init_i <= init_i_var;
-        init_j <= init_j_var;
-        init_k <= init_k_var;
-        load_err <= load_err_var;
-        load_err2 <= load_err2_var;
-        init_err <= init_err_var;
-        plot <= plot_var;
-    end if;
+      load_colour <= load_colour_var;
+      load_sx <= load_sx_var;
+      load_dx <= load_dx_var;
+      load_x <= load_x_var;
+      load_x0 <= load_x0_var;
+      load_x1 <= load_x1_var;
+      load_sy <= load_sy_var;
+      load_dy <= load_dy_var;
+      load_y <= load_y_var;
+      load_y0 <= load_y0_var;
+      load_y1 <= load_y1_var;
+      ctrl_colour_graycode <= ctrl_colour_graycode_var;
+      clear_screen <= clear_screen_var;
+      ctrl_err_dx <= ctrl_err_dx_var;
+      ctrl_err_dy <= ctrl_err_dy_var;
+      init_x <= init_x_var;
+      init_y <= init_y_var;
+      load_i <= load_i_var;
+      load_j <= load_j_var;
+      load_k <= load_k_var;
+      init_i <= init_i_var;
+      init_j <= init_j_var;
+      init_k <= init_k_var;
+      load_err <= load_err_var;
+      load_err2 <= load_err2_var;
+      init_err <= init_err_var;
+      plot <= plot_var;
   end process;
-
 
 
   -- VGA Driver
