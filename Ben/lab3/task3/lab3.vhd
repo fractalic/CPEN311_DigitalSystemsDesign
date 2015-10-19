@@ -217,19 +217,19 @@ begin
 
       if (load_x1 = '1') then
         --x1 <= to_unsigned(159, x1'length);
-        x1 <= to_unsigned(60, x0'length);
+        x1 <= to_unsigned(100, x0'length);
       end if;
 
       if (load_y0 = '1') then
         -- multiply k by 8
         --y0 <= k&"000";
-        y0 <= to_unsigned(50, y0'length)+k;
+        y0 <= to_unsigned(50, y0'length)+(k&'0');
       end if;
 
       if (load_y1 = '1') then
         --y1 <= to_unsigned(120,y1'length)
         --      - (k&"000");
-        y1 <= to_unsigned(60, y0'length)-k;
+        y1 <= to_unsigned(60, y0'length)-(k&'0');
       end if;
 
       if (load_i = '1') then
