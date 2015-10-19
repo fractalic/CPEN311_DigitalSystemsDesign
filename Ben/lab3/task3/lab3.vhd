@@ -6,7 +6,7 @@ entity lab3 is
   port(CLOCK_50            : in  std_logic;
        KEY                 : in  std_logic_vector(3 downto 0);
        SW                  : in  std_logic_vector(17 downto 0);
-       LEDG                : out std_logic_vector(7 downto 0);
+       LEDG                : out std_logic_vector(8 downto 0);
        LEDR                : out std_logic_vector(17 downto 0);
        VGA_R, VGA_G, VGA_B : out std_logic_vector(9 downto 0);
        VGA_HS              : out std_logic;
@@ -72,10 +72,10 @@ architecture rtl of lab3 is
   signal init_err      : std_logic;
 
   signal x,x0,x1       : unsigned(7 downto 0);
-  signal dx            : signed(x'left downto x'right);
+  signal dx            : unsigned(x'left downto x'right);
   signal sx            : signed(1 downto 0);
   signal y,y0,y1       : unsigned(6 downto 0);
-  signal dy            : signed(y'left downto y'right);
+  signal dy            : unsigned(y'left downto y'right);
   signal sy            : signed(1 downto 0);
   signal colour        : std_logic_vector(2 downto 0);
 
@@ -83,7 +83,7 @@ architecture rtl of lab3 is
   signal j             : unsigned(y'left downto y'right);
   signal k             : unsigned(3 downto 0);
 
-  signal err           : signed(7 downto 0);
+  signal err           : signed(dx'left+1 downto dx'right);
   signal err2          : signed(err'left+1 downto err'right);
 
   signal plot          : std_logic;
@@ -119,8 +119,9 @@ begin
   --ledr(y'left downto y'right) <= std_logic_vector(y);
 
   
-  ledg(k'left downto k'right) <= std_logic_vector(k);
-  ledr(err2'left downto dy'right) <= std_logic_vector(err2);
+  ledg(dx'left downto dx'right) <= std_logic_vector(dx);
+  ledr(17 downto 17-dy'right+1) <= std_logic_vector(dy);
+  ledr(err2'left downto err2'right) <= std_logic_vector(err2);
 
   --ledg(x0'left downto x0'right) <= std_logic_vector(x0);
   --ledr(y0'left downto y0'right) <= std_logic_vector(y0);
@@ -179,11 +180,11 @@ begin
       end if;
 
       if (load_dx = '1') then
-        dx <= abs(signed(x1)-signed(x0));
+        dx <= unsigned(abs(signed(x1)-signed(x0)));
       end if;
 
       if (load_dy = '1') then
-        dy <= abs(signed(y1)-signed(y0));
+        dy <= unsigned(abs(signed(y1)-signed(y0)));
       end if;
 
       if (load_x = '1') then
@@ -263,14 +264,14 @@ begin
 
       if (load_err = '1') then
         if (init_err = '1') then
-          err <= dx - dy;
+          err <= signed('0'&dx) - signed('0'&dy);
         else
           err_interim := err;
           if (ctrl_err_dy = '1') then
-            err_interim := err_interim - dy;
+            err_interim := err_interim - signed('0'&dy);
           end if;
           if (ctrl_err_dx = '1') then
-            err_interim := err_interim + dx;
+            err_interim := err_interim + signed('0'&dx);
           end if;
           err <= err_interim;
         end if; 
@@ -331,7 +332,7 @@ begin
         when vga_computeLine =>
           drawState <= vga_stepLine;
 
-        when  vga_stepLine =>
+        when vga_stepLine =>
           drawState <= vga_plotLine;
 
         when vga_nextLine =>
@@ -479,13 +480,13 @@ begin
           --ledg <= "00001000";
 
         when  vga_stepLine =>
-          if (err2 > -1*dy) then
+          if (err2 > -signed('0'&dy)) then
             ctrl_err_dy_var := '1';
             load_err_var := '1';
             load_x_var  := '1';
           end if;
 
-          if (err2 < dx) then
+          if (err2 < signed('0'&dx)) then
             ctrl_err_dx_var := '1';
             load_err_var := '1';
             load_y_var  := '1';
