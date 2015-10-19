@@ -73,9 +73,13 @@ architecture rtl of lab3 is
 
   signal x,x0,x1       : unsigned(7 downto 0);
   signal dx            : unsigned(x'left downto x'right);
+  signal dx_sig        : unsigned(dx'left+1 downto dx'right);
   signal sx            : signed(1 downto 0);
   signal y,y0,y1       : unsigned(6 downto 0);
+  signal y0_sig        : integer;
+  signal y1_sig        : signed(7 downto 0);
   signal dy            : unsigned(y'left downto y'right);
+  signal dy_sig        : unsigned(dy'left+1 downto dy'right);
   signal sy            : signed(1 downto 0);
   signal colour        : std_logic_vector(2 downto 0);
 
@@ -113,7 +117,7 @@ begin
     end if;
   end process;
 
-  stateClock <= clock_counter(13);
+  stateClock <= clock_counter(12);
   --stateClock <= key(0);
   --ledg(x'left downto x'right) <= std_logic_vector(x);
   --ledr(y'left downto y'right) <= std_logic_vector(y);
@@ -180,11 +184,13 @@ begin
       end if;
 
       if (load_dx = '1') then
-        dx <= unsigned(abs(signed(x1)-signed(x0)));
+        dx_sig <= unsigned(abs(signed('0'&x1)-signed('0'&x0)));
+        dx <= dx_sig(dx_sig'left-1 downto dx_sig'right);
       end if;
 
       if (load_dy = '1') then
-        dy <= unsigned(abs(signed(y1)-signed(y0)));
+        dy_sig <= unsigned(abs(signed('0'&y1)-signed('0'&y0)));
+        dy <= dy_sig(dy_sig'left-1 downto dy_sig'right);
       end if;
 
       if (load_x = '1') then
@@ -213,31 +219,34 @@ begin
 
       if (load_x0 = '1') then
         --x0 <= to_unsigned(0, x0'length);
-        x0 <= to_unsigned(10, x0'length);
+        x0 <= to_unsigned(0, x0'length);
       end if;
 
       if (load_x1 = '1') then
         --x1 <= to_unsigned(159, x1'length);
-        x1 <= to_unsigned(100, x0'length);
+        x1 <= to_unsigned(159, x0'length);
       end if;
 
       if (load_y0 = '1') then
         -- multiply k by 8
         --y0 <= k&"000";
-        y0 <= to_unsigned(50, y0'length)+(k&'0');
+        --y0_sig <= 0 +
+        y0 <= unsigned("00000"&std_logic_vector(k(1 downto 0)));
       end if;
 
       if (load_y1 = '1') then
         --y1 <= to_unsigned(120,y1'length)
         --      - (k&"000");
-        y1 <= to_unsigned(60, y0'length)-(k&'0');
+        y1_sig <= "01110111" - ("000"&signed('0'&k));
+        y1 <= "1110111";
+
       end if;
 
       if (load_i = '1') then
         if (init_i = '1') then
           i <= to_unsigned(0, i'length);
         else
-          i <= i + 1;
+          i <= i + to_unsigned(1, i'length);
         end if;
       end if;
 
@@ -245,7 +254,7 @@ begin
         if (init_j = '1') then
           j <= to_unsigned(0, j'length);
         else
-          j <= j + 1;
+          j <= j + to_unsigned(1, j'length);
         end if;
       end if;
 
