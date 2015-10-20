@@ -179,21 +179,21 @@ begin
         if (ctrl_colour_graycode = '1') then
           case k(3 downto 0) is
             when "0000" => colour <= "000";
-            when "0001" => colour <= "000";
+            when "0001" => colour <= COLOUR_RESET;
             when "0010" => colour <= "001";
-            when "0011" => colour <= "000";
+            when "0011" => colour <= COLOUR_RESET;
             when "0100" => colour <= "011";
-            when "0101" => colour <= "000";
+            when "0101" => colour <= COLOUR_RESET;
             when "0110" => colour <= "010";
-            when "0111" => colour <= "000";
+            when "0111" => colour <= COLOUR_RESET;
             when "1000" => colour <= "110";
-            when "1001" => colour <= "000";
+            when "1001" => colour <= COLOUR_RESET;
             when "1010" => colour <= "111";
-            when "1011" => colour <= "000";
+            when "1011" => colour <= COLOUR_RESET;
             when "1100" => colour <= "101";
-            when "1101" => colour <= "000";
+            when "1101" => colour <= COLOUR_RESET;
             when "1110" => colour <= "100";
-            when "1111" => colour <= "000";
+            when "1111" => colour <= COLOUR_RESET;
           end case;
           --colour <= "101";
         else
