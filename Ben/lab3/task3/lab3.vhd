@@ -73,19 +73,17 @@ architecture rtl of lab3 is
 
   signal x,x0,x1       : unsigned(7 downto 0);
   signal dx            : unsigned(x'left downto x'right);
-  signal dx_sig        : unsigned(dx'left+1 downto dx'right);
   signal sx            : signed(1 downto 0);
   signal y,y0,y1       : unsigned(6 downto 0);
   signal y0_sig        : integer;
   signal y1_sig        : signed(7 downto 0);
   signal dy            : unsigned(y'left downto y'right);
-  signal dy_sig        : unsigned(dy'left+1 downto dy'right);
   signal sy            : signed(1 downto 0);
   signal colour        : std_logic_vector(2 downto 0);
 
   signal i             : unsigned(x'left downto x'right);
   signal j             : unsigned(y'left downto y'right);
-  signal k             : unsigned(3 downto 0);
+  signal k             : unsigned(4 downto 0);
 
   signal err           : signed(dx'left+1 downto dx'right);
   signal err2          : signed(err'left+1 downto err'right);
@@ -95,7 +93,7 @@ architecture rtl of lab3 is
   signal stateClock    : std_logic;
 
   type vga_state is (vga_reset, vga_init, vga_plot, vga_nextRow, vga_nextCol,
-                     vga_beginLines, vga_mapLine, vga_initLine,
+                     vga_beginLines, vga_waitLine, vga_mapLine, vga_initLine,
                      vga_errLine, vga_plotLine,
                      vga_computeLine, vga_stepLine,
                      vga_nextLine, vga_freeze);
@@ -103,29 +101,39 @@ architecture rtl of lab3 is
   signal drawState : vga_state;
 
   signal clock_counter : unsigned(27 downto 0);
+  signal line_timer : unsigned(27 downto 0);
+  signal reset_line_timer : std_logic;
+  signal count_line_timer : std_logic;
 
   signal COLOUR_RESET  : std_logic_vector(2 downto 0);
 
 begin
 
-  COLOUR_RESET <= "001";
+  COLOUR_RESET <= "000";
 
   process(clock_50)
   begin
     if (rising_edge(clock_50)) then
       clock_counter <= clock_counter + 1;
+
+      if (reset_line_timer = '1') then
+        line_timer <= to_unsigned(0, line_timer'length);
+      else
+        line_timer <= line_timer + to_unsigned(1, line_timer'length);
+      end if;
     end if;
   end process;
 
-  stateClock <= clock_counter(12);
+  --stateClock <= clock_counter(11);
+  stateClock <= clock_50;
   --stateClock <= key(0);
   --ledg(x'left downto x'right) <= std_logic_vector(x);
   --ledr(y'left downto y'right) <= std_logic_vector(y);
 
-  
-  ledg(dx'left downto dx'right) <= std_logic_vector(dx);
-  ledr(17 downto 17-dy'right+1) <= std_logic_vector(dy);
-  ledr(err2'left downto err2'right) <= std_logic_vector(err2);
+  ledr(17 downto 0) <= std_logic_vector(line_timer(27 downto 10));
+  --ledg(dx'left downto dx'right) <= std_logic_vector(dx);
+  --ledr(17 downto 17-dy'length+1) <= std_logic_vector(dy);
+  --ledr(err2'left downto err2'right) <= std_logic_vector(err2);
 
   --ledg(x0'left downto x0'right) <= std_logic_vector(x0);
   --ledr(y0'left downto y0'right) <= std_logic_vector(y0);
@@ -156,11 +164,37 @@ begin
   -- Datapath registers.
   process(stateClock)
   variable err_interim : signed(err'left downto err'right);
+
+  variable y_wide : signed(y'left+2 downto y'right);
+  variable x_wide : signed(x'left+2 downto x'right);
+
+  variable dx_wide : unsigned(dx'left+1 downto dx'right);
+  variable dy_wide : unsigned(dy'left+1 downto dy'right);
+
+  variable y0_wide : signed(y0'left+2 downto y0'right);
+  variable y1_wide : signed(y1'left+2 downto y1'right);
   begin
     if (rising_edge(stateClock)) then
       if (load_colour = '1') then
         if (ctrl_colour_graycode = '1') then
-          colour <= '1'&std_logic_vector(k(1 downto 0));
+          case k(3 downto 0) is
+            when "0000" => colour <= "000";
+            when "0001" => colour <= "000";
+            when "0010" => colour <= "001";
+            when "0011" => colour <= "000";
+            when "0100" => colour <= "011";
+            when "0101" => colour <= "000";
+            when "0110" => colour <= "010";
+            when "0111" => colour <= "000";
+            when "1000" => colour <= "110";
+            when "1001" => colour <= "000";
+            when "1010" => colour <= "111";
+            when "1011" => colour <= "000";
+            when "1100" => colour <= "101";
+            when "1101" => colour <= "000";
+            when "1110" => colour <= "100";
+            when "1111" => colour <= "000";
+          end case;
           --colour <= "101";
         else
           colour <= COLOUR_RESET;
@@ -184,13 +218,13 @@ begin
       end if;
 
       if (load_dx = '1') then
-        dx_sig <= unsigned(abs(signed('0'&x1)-signed('0'&x0)));
-        dx <= dx_sig(dx_sig'left-1 downto dx_sig'right);
+        dx_wide := unsigned(abs(signed('0'&x1)-signed('0'&x0)));
+        dx <= dx_wide(dx_wide'left-1 downto dx_wide'right);
       end if;
 
       if (load_dy = '1') then
-        dy_sig <= unsigned(abs(signed('0'&y1)-signed('0'&y0)));
-        dy <= dy_sig(dy_sig'left-1 downto dy_sig'right);
+        dy_wide := unsigned(abs(signed('0'&y1)-signed('0'&y0)));
+        dy <= dy_wide(dy_wide'left-1 downto dy_wide'right);
       end if;
 
       if (load_x = '1') then
@@ -200,7 +234,8 @@ begin
           if (init_x = '1') then
             x <= x0;
           else
-            x <= unsigned(signed(x) + sx);
+            x_wide := signed("00"&x) + sx;
+            x <= unsigned(x_wide(x'left downto x'right));
           end if;
         end if;
       end if;
@@ -212,7 +247,8 @@ begin
           if (init_y = '1') then
             y <= y0;
           else
-            y <= unsigned(signed(y) + sy);
+            y_wide := signed("00"&y)+sy;
+            y <= unsigned(y_wide(y'left downto y'right));
           end if;
         end if;
       end if;
@@ -231,14 +267,17 @@ begin
         -- multiply k by 8
         --y0 <= k&"000";
         --y0_sig <= 0 +
-        y0 <= unsigned("00000"&std_logic_vector(k(1 downto 0)));
+        -- signed result should have 2 more bits, not 1 more
+        y0_wide := to_signed(0, y0_wide'length) + signed(((shift_right(k,1))*to_unsigned(8,4)) );
+        y0 <= unsigned(y0_wide(y0'left downto y0'right));
+        --y0 <= "0000001";
       end if;
 
       if (load_y1 = '1') then
         --y1 <= to_unsigned(120,y1'length)
         --      - (k&"000");
-        y1_sig <= "01110111" - ("000"&signed('0'&k));
-        y1 <= "1110111";
+        y1_wide := to_signed(119, y1_wide'length) - signed(((shift_right(k,1))*to_unsigned(8,4)) );
+        y1 <= unsigned(y1_wide(y1'left downto y1'right));
 
       end if;
 
@@ -299,6 +338,7 @@ begin
       case drawState is
         when vga_reset =>
           drawState <= vga_init;
+
         when vga_init =>
           drawState <= vga_plot;
 
@@ -320,7 +360,14 @@ begin
           drawState <= vga_plot;
 
         when vga_beginLines =>
-          drawState <= vga_mapLine;
+          drawState <= vga_waitLine;
+
+        when vga_waitLine =>
+          if (line_timer > 50000000) then
+            drawState <= vga_mapLine;
+          else
+            drawState <= vga_waitLine;
+          end if;
 
         when vga_mapLine =>
           drawState <= vga_initLine;
@@ -345,10 +392,12 @@ begin
           drawState <= vga_plotLine;
 
         when vga_nextLine =>
-          if (k = to_unsigned(13,k'length)) then
-            drawState <= vga_freeze;
-          else
+          if (k = to_unsigned(27,k'length)) then
+            drawState <= vga_beginLines;
+          elsif ((k mod 2) = "00001") then
             drawState <= vga_mapLine;
+          else
+            drawState <= vga_waitLine;
           end if;
 
         when vga_freeze =>
@@ -388,7 +437,8 @@ begin
    load_err_var,
    load_err2_var,
    init_err_var,
-   plot_var : std_logic := '0';
+   plot_var,
+   reset_line_timer_var : std_logic := '0';
   begin
     load_colour_var := '0';
     load_sx_var := '0';
@@ -417,8 +467,11 @@ begin
     load_err2_var := '0';
     init_err_var := '0';
     plot_var := '0';
+    reset_line_timer_var := '0';
     case drawState is
         when vga_reset =>
+          reset_line_timer_var := '1';
+
         when vga_init =>
           load_colour_var := '1';
           load_i_var := '1';
@@ -450,7 +503,11 @@ begin
           load_k_var  := '1';
           init_k_var  := '1';
 
+        when vga_waitLine =>
+          --no output
+
         when vga_mapLine =>
+          reset_line_timer_var := '1';
           load_x0_var := '1';
           load_x1_var := '1';
           load_y0_var := '1';
@@ -541,6 +598,7 @@ begin
       load_err2 <= load_err2_var;
       init_err <= init_err_var;
       plot <= plot_var;
+      reset_line_timer <= reset_line_timer_var;
   end process;
 
 
@@ -562,5 +620,3 @@ begin
              VGA_SYNC  => VGA_SYNC,
              VGA_CLK   => VGA_CLK);
 end rtl;
-
-
