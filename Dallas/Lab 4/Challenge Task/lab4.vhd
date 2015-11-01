@@ -36,6 +36,7 @@ use work.lab4_pkg.all; -- types and constants that we will use
 entity lab4 is
   port(CLOCK_50            : in  std_logic;  -- Clock pin
        KEY                 : in  std_logic_vector(3 downto 0);  -- push button switches
+		 SW						: in  std_logic_vector(17 downto 0); -- switches for cheat codes!
        VGA_R, VGA_G, VGA_B : out std_logic_vector(9 downto 0);  -- The outs go to VGA controller
        VGA_HS              : out std_logic;
        VGA_VS              : out std_logic;
@@ -125,6 +126,8 @@ begin
 	 
 	 variable PADDLE_SHRINK_COUNT : natural := 0;
 	 variable PADDLE_SHRINK_NUMBER : natural := 0;
+	 variable PADDLE_SPEED : natural := 2;
+	 variable PADDLE_WIDTH : natural := 10;
 
  begin
  
@@ -334,9 +337,29 @@ begin
 				  
               clock_counter := 0;
 				  PADDLE_SHRINK_COUNT := PADDLE_SHRINK_COUNT + 1; -- updates every 1/8 second
-			     puck_velocity.y := puck_velocity.y + GRAVITY;
-			     puck2_velocity.y := puck2_velocity.y + GRAVITY;
+			     if SW(0) = '0' then
+				      puck_velocity.y := puck_velocity.y + GRAVITY; -- green
+				  end if;
+				  if SW(1) = '0' then
+			         puck2_velocity.y := puck2_velocity.y + GRAVITY; -- blue
+				  end if;
               state := ERASE_PADDLE_ENTER;  -- next state
+				  
+				  if SW(2) = '1' then
+				      PADDLE_SPEED := PADDLE_SPEED_1;
+				  elsif SW(3) = '1' then
+				      PADDLE_SPEED := PADDLE_SPEED_2;
+				  else
+						PADDLE_SPEED := PADDLE_SPEED_0;
+				  end if;
+				  
+				  if SW(4) = '1' then
+						PADDLE_WIDTH := PADDLE_WIDTH_1;
+				  elsif SW(5) = '1' then
+						PADDLE_WIDTH := PADDLE_WIDTH_2;
+				  else
+						PADDLE_WIDTH := PADDLE_WIDTH_0;
+				  end if;
 	  
 			 end if;
 			 
@@ -409,10 +432,10 @@ begin
 				     -- If the user has pressed the right button check to make sure we
 					  -- are not already at the rightmost position of the screen
 					  
-				     if paddle_x <= to_unsigned(RIGHT_LINE - PADDLE_WIDTH - 2 + PADDLE_SHRINK_NUMBER, paddle_x'length) then 
+				     if paddle_x <= to_unsigned(RIGHT_LINE - PADDLE_WIDTH - PADDLE_SPEED + PADDLE_SHRINK_NUMBER, paddle_x'length) then 
 
      					   -- add 2 to the paddle position
-                  	paddle_x := paddle_x + to_unsigned(2, paddle_x'length) ;
+                  	paddle_x := paddle_x + to_unsigned(PADDLE_SPEED, paddle_x'length) ;
 					  end if;
 				     -- If the user has pressed the right button check to make sure we
 					  -- are not already at the rightmost position of the screen
@@ -422,10 +445,10 @@ begin
 				     -- If the user has pressed the left button check to make sure we
 					  -- are not already at the leftmost position of the screen
 				  
-				     if paddle_x >= to_unsigned(LEFT_LINE + 2, paddle_x'length) then 				 
+				     if paddle_x > to_unsigned(LEFT_LINE + PADDLE_SPEED, paddle_x'length) then 				 
 					 
 					      -- subtract 2 from the paddle position 
-   				      paddle_x := paddle_x - to_unsigned(2, paddle_x'length) ;						
+   				      paddle_x := paddle_x - to_unsigned(PADDLE_SPEED, paddle_x'length) ;						
 					  end if;
 				  end if;
 
@@ -545,7 +568,7 @@ begin
               -- See if we have bounced off the paddle on the bottom row of
 	           -- the screen		
 				  
-		        if puck2.y >= PADDLE_ROW - "00000001" & "00000000" then
+		        if puck2.y >= PADDLE_ROW - "00000010" & "00000000" then
 				     if puck2.x >= paddle_x & "00000000" and puck2.x <= paddle_x + PADDLE_WIDTH - PADDLE_SHRINK_NUMBER & "00000000" then
 					  
 					     -- we have bounced off the paddle

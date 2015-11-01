@@ -28,6 +28,9 @@ package lab4_pkg is
   end record;
   
   constant GRAVITY : signed(FRAC_BITS + INT_BITS - 1 downto 0) := "0000000000010000";
+  constant PADDLE_SPEED_0 : natural := 2;
+  constant PADDLE_SPEED_1 : natural := 5;
+  constant PADDLE_SPEED_2 : natural := 10;
   
   --Colours.  
   constant BLACK : std_logic_vector(2 downto 0) := "000";
@@ -54,7 +57,9 @@ package lab4_pkg is
   -- Here are some constants that we will use in the code. 
  
   -- These constants contain information about the paddle 
-  constant PADDLE_WIDTH : natural := 10;  -- width, in pixels, of the paddle
+  constant PADDLE_WIDTH_0 : natural := 10;  -- width, in pixels, of the paddle
+  constant PADDLE_WIDTH_1 : natural := 15;
+  constant PADDLE_WIDTH_2 : natural := 20;
   constant PADDLE_ROW : natural := SCREEN_HEIGHT - 2;  -- row to draw the paddle 
   constant PADDLE_X_START : natural := SCREEN_WIDTH / 2;  -- starting x position of the paddle
 
