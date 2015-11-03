@@ -55,7 +55,7 @@ architecture rtl of lab4 is
 signal resetn : std_logic;
 signal x      : std_logic_vector(7 downto 0);
 signal y      : std_logic_vector(6 downto 0);
-signal colour : std_logic_vector(2 downto 0);
+signal colour : std_logic_vector(5 downto 0);
 signal plot   : std_logic;
 signal draw  : point;
 
@@ -129,6 +129,8 @@ begin
     variable PADDLE_SPEED : natural := 2;
     variable PADDLE_WIDTH : natural := 10;
 
+    variable BRICK_COLOUR_VAR : std_logic_vector(5 downto 0) := BRICK_COLOUR;
+
 begin
 
     if KEY(3) = '0' then
@@ -151,7 +153,7 @@ begin
         puck_velocity.y := -"0000000001000000";--to_signed(-1, puck_velocity.y'length); -- up to right at 45 degrees
         puck2_velocity.x := "0000000011100000";--to_signed(1, puck2_velocity.x'length);
         puck2_velocity.y := -"0000000010000000";--to_signed(-1, puck2_velocity.y'length); -- down to right at 45 degrees
-        colour <= BLACK;
+        colour <= BG_COLOUR;
         plot <= '1';
         PADDLE_SHRINK_COUNT := 0;
         PADDLE_SHRINK_NUMBER := 0;
@@ -173,7 +175,7 @@ begin
     when DRAW_TOP_ENTER =>                
         draw.x <= to_unsigned(LEFT_LINE, draw.x'length);
         draw.y <= to_unsigned(TOP_LINE, draw.y'length);
-        colour <= WHITE;
+        colour <= BORDER_COLOUR;
         state := DRAW_TOP_LOOP;
 
     when DRAW_TOP_LOOP =>
@@ -204,12 +206,47 @@ begin
 
     when DRAW_LEFT_LOOP =>       
         if (draw.y = SCREEN_HEIGHT-1) then
-            state := IDLE;
+            state := DRAW_BRICK_ENTER;
             clock_counter := 0;
         else                   
             draw.x <= to_unsigned(LEFT_LINE, draw.x'length);
             draw.y <= draw.y + to_unsigned(1, draw.y'length);
-        end if; 
+        end if;
+
+    when DRAW_BRICK_ENTER =>
+        colour <= BRICK_COLOUR_VAR;
+        draw.x <= to_unsigned(BRICK_LEFT, draw.x'length);
+        draw.y <= to_unsigned(BRICK_TOP, draw.y'length);
+        state := DRAW_BRICK_LOOP;
+
+    when DRAW_BRICK_LOOP =>
+        if (draw.y = BRICK_TOP) then
+            if (draw.x = BRICK_RIGHT) then
+                draw.y <= draw.y + to_unsigned(1, draw.y'length);
+            else
+                draw.x <= draw.x + to_unsigned(1, draw.x'length);
+            end if;
+        elsif (draw.x = BRICK_RIGHT) then
+            if (draw.y = BRICK_BOTTOM) then
+                draw.x <= draw.x - to_unsigned(1, draw.x'length);
+            else
+                draw.y <= draw.y + to_unsigned(1, draw.y'length);
+            end if;
+        elsif (draw.y = BRICK_BOTTOM) then
+            if (draw.x = BRICK_LEFT) then
+                draw.y <= draw.y - to_unsigned(1, draw.y'length);
+            else
+                draw.x <= draw.x - to_unsigned(1, draw.x'length);
+            end if;
+        elsif (draw.x = BRICK_LEFT) then
+            if (draw.y = BRICK_TOP + to_unsigned(1, draw.y'length)) then
+                state := IDLE;
+            else
+                draw.y <= draw.y - to_unsigned(1, draw.y'length);
+            end if;
+        else
+            state := IDLE;
+        end if;
 
     when IDLE => 
         plot <= '0';
@@ -242,7 +279,7 @@ begin
     when ERASE_PADDLE_ENTER =>
         draw.y <= to_unsigned(PADDLE_ROW, draw.y'length);
         draw.x <= paddle_x;
-        colour <= BLACK;
+        colour <= BG_COLOUR;
         plot <= '1';
         state := ERASE_PADDLE_LOOP;
 
@@ -290,7 +327,7 @@ begin
         end if;
         draw.y <= to_unsigned(PADDLE_ROW, draw.y'length);                
         draw.x <= paddle_x;           
-        colour <= RED;       
+        colour <= PADDLE1_COLOUR;       
         state := DRAW_PADDLE_LOOP;
 
     when DRAW_PADDLE_LOOP =>
@@ -304,7 +341,7 @@ begin
         end if;
 
     when ERASE_PUCK =>
-        colour <= BLACK;
+        colour <= BG_COLOUR;
         plot <= '1';
         draw.x <= "00000000" & puck.x(15 downto 8);  
         draw.y <= "00000000" & puck.y(15 downto 8);
@@ -313,6 +350,7 @@ begin
         puck.x := unsigned(signed(puck.x) + puck_velocity.x);
         puck.y := unsigned(signed(puck.y) + puck_velocity.y);               
 
+        -- Check for collision with bounds.
         if puck.y <= (TOP_LINE + to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS) then
             puck.y := (TOP_LINE + to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS);
             puck_velocity.y := 0-puck_velocity.y;
@@ -328,24 +366,50 @@ begin
             puck_velocity.x := 0-puck_velocity.x;
         end if;
 
-        if puck.y >= PADDLE_ROW - "00000010" & "00000000" then--PADDLE_ROW - 1 then
+        -- Check for collision with paddle.
+        if puck.y >= PADDLE_ROW - "00000001" & "00000000" then--PADDLE_ROW - 1 then
             if puck.x >= paddle_x & "00000000" and puck.x <= paddle_x + PADDLE_WIDTH - PADDLE_SHRINK_NUMBER & "00000000" then
-
+                puck.y := (PADDLE_ROW - to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS);
                 puck_velocity.y := 0-puck_velocity.y;
             else
                 state := INIT;
             end if;     
         end if;
 
+        -- Check for collision with brick
+        if ( ( (puck.x >= to_unsigned(BRICK_LEFT, INT_BITS) & FRAC_ZERO) and
+               (puck.x <= to_unsigned(BRICK_RIGHT, INT_BITS) & FRAC_ZERO)    ) and
+             ( (puck.y >= to_unsigned(BRICK_TOP, INT_BITS) & FRAC_ZERO) and
+               (puck.y <= to_unsigned(BRICK_BOTTOM, INT_BITS) & FRAC_ZERO)   ) ) then
+            if ( (unsigned(signed(puck.x) - puck_velocity.x) < to_unsigned(BRICK_LEFT, INT_BITS) & FRAC_ZERO) or
+                 (unsigned(signed(puck.x) - puck_velocity.x) > to_unsigned(BRICK_RIGHT, INT_BITS) & FRAC_ZERO) ) then
+                if (puck_velocity.x > "00000000") then
+                    puck.x := (to_unsigned(BRICK_LEFT, INT_BITS) - INT_ONE) & FRAC_ZERO;
+                else
+                    puck.x := (to_unsigned(BRICK_RIGHT, INT_BITS) + INT_ONE) & FRAC_ZERO;
+                end if;
+
+                puck_velocity.x := 0-puck_velocity.x;
+            else
+                if (puck_velocity.y > "00000000") then
+                    puck.y := (to_unsigned(BRICK_TOP, INT_BITS) - INT_ONE) & FRAC_ZERO;
+                else
+                    puck.y := (to_unsigned(BRICK_BOTTOM, INT_BITS) + INT_ONE) & FRAC_ZERO;
+                end if;
+                puck_velocity.y := 0-puck_velocity.y;
+            end if;
+            BRICK_COLOUR_VAR := PUCK1_COLOUR;
+        end if;
+
     when DRAW_PUCK =>
-        colour <= GREEN;
+        colour <= PUCK1_COLOUR;
         plot <= '1';
         draw.x <= "00000000" & puck.x(15 downto 8);  
         draw.y <= "00000000" & puck.y(15 downto 8);
         state := ERASE_PUCK_2;
 
     when ERASE_PUCK_2 =>
-        colour <= BLACK;
+        colour <= BG_COLOUR;
         plot <= '1';
         draw.x <= "00000000" & puck2.x(15 downto 8);  
         draw.y <= "00000000" & puck2.y(15 downto 8);
@@ -370,22 +434,47 @@ begin
             puck2_velocity.x := 0-puck2_velocity.x;
         end if;
 
-        if puck2.y >= PADDLE_ROW - "00000010" & "00000000" then
+        if puck2.y >= PADDLE_ROW - "00000001" & "00000000" then
             if ( (puck2.x >= paddle_x & "00000000") and
-                 (puck2.x <= paddle_x + PADDLE_WIDTH - PADDLE_SHRINK_NUMBER & "00000000") ) then
-
+                 (puck2.x <= (paddle_x + PADDLE_WIDTH - PADDLE_SHRINK_NUMBER) & "00000000") ) then
+                puck2.y := (PADDLE_ROW - to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS);
                 puck2_velocity.y := 0-puck2_velocity.y;
             else
                 state := INIT;
             end if;     
-        end if;   
+        end if;
+
+        -- Check for collision with brick
+        if ( ( (puck2.x >= to_unsigned(BRICK_LEFT, INT_BITS) & FRAC_ZERO) and
+               (puck2.x <= to_unsigned(BRICK_RIGHT, INT_BITS) & FRAC_ZERO)    ) and
+             ( (puck2.y >= to_unsigned(BRICK_TOP, INT_BITS) & FRAC_ZERO) and
+               (puck2.y <= to_unsigned(BRICK_BOTTOM, INT_BITS) & FRAC_ZERO)   ) ) then
+            if ( (unsigned(signed(puck2.x) - puck2_velocity.x) < to_unsigned(BRICK_LEFT, INT_BITS) & FRAC_ZERO) or
+                 (unsigned(signed(puck2.x) - puck2_velocity.x) > to_unsigned(BRICK_RIGHT, INT_BITS) & FRAC_ZERO) ) then
+                if (puck2_velocity.x > "00000000") then
+                    puck2.x := (to_unsigned(BRICK_LEFT, INT_BITS) - INT_ONE) & FRAC_ZERO;
+                else
+                    puck2.x := (to_unsigned(BRICK_RIGHT, INT_BITS) + INT_ONE) & FRAC_ZERO;
+                end if;
+
+                puck2_velocity.x := 0-puck2_velocity.x;
+            else
+                if (puck2_velocity.y > "00000000") then
+                    puck2.y := (to_unsigned(BRICK_TOP, INT_BITS) - INT_ONE) & FRAC_ZERO;
+                else
+                    puck2.y := (to_unsigned(BRICK_BOTTOM, INT_BITS) + INT_ONE) & FRAC_ZERO;
+                end if;
+                puck2_velocity.y := 0-puck2_velocity.y;
+            end if;
+            BRICK_COLOUR_VAR := PUCK2_COLOUR;
+        end if;
 
     when DRAW_PUCK_2 =>
-        colour <= BLUE;
+        colour <= PUCK2_COLOUR;
         plot <= '1';
         draw.x <= "00000000" & puck2.x(15 downto 8);  
         draw.y <= "00000000" & puck2.y(15 downto 8);
-        state := IDLE;
+        state := DRAW_BRICK_ENTER;
 
     when others =>
         state := START;

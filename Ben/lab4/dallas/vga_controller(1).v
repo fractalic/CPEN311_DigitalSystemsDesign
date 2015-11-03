@@ -13,7 +13,7 @@ module vga_controller(	vga_clock, resetn, pixel_colour, memory_address,
 	
 	/* Screen resolution and colour depth parameters. */
 	
-	parameter BITS_PER_COLOUR_CHANNEL = 1;
+	parameter BITS_PER_COLOUR_CHANNEL = 2;
 	/* The number of bits per colour channel used to represent the colour of each pixel. A value
 	 * of 1 means that Red, Green and Blue colour channels will use 1 bit each to represent the intensity
 	 * of the respective colour channel. For BITS_PER_COLOUR_CHANNEL=1, the adapter can display 8 colours.
