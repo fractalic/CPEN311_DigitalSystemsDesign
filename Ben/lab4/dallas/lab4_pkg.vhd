@@ -13,6 +13,7 @@ package lab4_pkg is
   constant FRAC_BITS : natural := 8;
   constant INT_BITS : natural := 8;
   constant INT_ONE  : unsigned(INT_BITS - 1 downto 0) := to_unsigned(1, INT_BITS);
+  constant INT_ZERO  : unsigned(INT_BITS - 1 downto 0) := to_unsigned(0, INT_BITS);
   constant FRAC_ZERO : unsigned(FRAC_BITS - 1 downto 0) := to_unsigned(0, FRAC_BITS);
 
   -- Use the same precision for x and y as it simplifies life

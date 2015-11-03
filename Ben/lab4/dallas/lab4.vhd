@@ -157,6 +157,7 @@ begin
         plot <= '1';
         PADDLE_SHRINK_COUNT := 0;
         PADDLE_SHRINK_NUMBER := 0;
+        BRICK_COLOUR_VAR := BRICK_COLOUR;
         state := START;
 
     when START =>   
@@ -367,10 +368,13 @@ begin
         end if;
 
         -- Check for collision with paddle.
-        if puck.y >= PADDLE_ROW - "00000001" & "00000000" then--PADDLE_ROW - 1 then
-            if puck.x >= paddle_x & "00000000" and puck.x <= paddle_x + PADDLE_WIDTH - PADDLE_SHRINK_NUMBER & "00000000" then
+        if (puck.y >= (PADDLE_ROW - INT_ONE) & FRAC_ZERO) then--PADDLE_ROW - 1 then
+            if (puck.x >= (paddle_x & FRAC_ZERO) and
+                puck.x <= (paddle_x + PADDLE_WIDTH - PADDLE_SHRINK_NUMBER) & FRAC_ZERO) then
+
                 puck.y := (PADDLE_ROW - to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS);
                 puck_velocity.y := 0-puck_velocity.y;
+
             else
                 state := INIT;
             end if;     
