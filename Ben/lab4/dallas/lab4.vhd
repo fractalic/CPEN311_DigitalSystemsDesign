@@ -368,7 +368,7 @@ begin
         if (puck2.x >= (RIGHT_LINE - to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS)) then
             puck2.x := (RIGHT_LINE - to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS);
             puck2_velocity.x := 0-puck2_velocity.x;
-        end if;             
+        end if;
 
         if puck2.y >= PADDLE_ROW - "00000010" & "00000000" then
             if ( (puck2.x >= paddle_x & "00000000") and
