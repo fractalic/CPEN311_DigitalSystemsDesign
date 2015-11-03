@@ -29,6 +29,11 @@ package lab4_pkg is
     x : signed(FRAC_BITS + INT_BITS - 1 downto 0);
     y : signed(FRAC_BITS + INT_BITS - 1 downto 0);
   end record;
+
+  type ball is record
+    velocity : velocity;
+    position : point;
+  end record;
   
   constant GRAVITY : signed(FRAC_BITS + INT_BITS - 1 downto 0) := "0000000000001000";
   constant PADDLE_SPEED_0 : natural := 2;

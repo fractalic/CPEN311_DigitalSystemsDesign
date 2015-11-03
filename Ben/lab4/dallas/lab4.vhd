@@ -129,6 +129,9 @@ begin
     variable PADDLE_SPEED : natural := 2;
     variable PADDLE_WIDTH : natural := 10;
 
+    variable velocitySum : unsigned(FRAC_BITS + INT_BITS downto 0);
+    variable paddlePuckRelativeX : unsigned(INT_BITS - 1 downto 0);
+
     variable BRICK_COLOUR_VAR : std_logic_vector(5 downto 0) := BRICK_COLOUR;
 
 begin
@@ -374,6 +377,28 @@ begin
 
                 puck.y := (PADDLE_ROW - to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS);
                 puck_velocity.y := 0-puck_velocity.y;
+
+                velocitySum := unsigned('0'& abs(puck_velocity.x)) + unsigned('0'& abs(puck_velocity.y));
+                paddlePuckRelativeX := puck.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) -
+                                       paddle_x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS);
+
+                if (puck.x < paddle_x + ( (PADDLE_WIDTH - paddle_shrink_number) / 2 ) & FRAC_ZERO) then
+
+                    puck_velocity.x := ( signed(velocitySum(velocitySum'left-6 downto velocitySum'right + 3) / 
+                        ( (PADDLE_WIDTH - paddle_shrink_number)/2) ) ) * signed(paddlePuckRelativeX);
+                    puck_velocity.y := signed(velocitySum(velocitySum'left - 1 downto velocitySum'right)) - puck_velocity.x;
+                    puck_velocity.x := 0-puck_velocity.x;
+                    puck_velocity.y := 0-puck_velocity.y;
+
+                elsif (puck.x > paddle_x + ( (PADDLE_WIDTH - paddle_shrink_number) / 2) & FRAC_ZERO) then
+
+                    paddlePuckRelativeX := (PADDLE_WIDTH - paddle_shrink_number) - paddlePuckRelativeX;
+
+                    puck_velocity.x := ( signed(velocitySum(velocitySum'left-6 downto velocitySum'right+3) / 
+                        ( (PADDLE_WIDTH - paddle_shrink_number)/2) ) ) * signed(paddlePuckRelativeX);
+                    puck_velocity.y := signed(velocitySum(velocitySum'left - 1 downto velocitySum'right)) - puck_velocity.x;
+                    puck_velocity.y := 0-puck_velocity.y;
+                end if;
 
             else
                 state := INIT;
