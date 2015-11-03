@@ -214,18 +214,20 @@ begin
     when IDLE => 
         plot <= '0';
 
-        if clock_counter < LOOP_SPEED then
+        if (clock_counter < LOOP_SPEED) then
             clock_counter := clock_counter + 1;
         else
+            state := ERASE_PADDLE_ENTER;
+
             clock_counter := 0;
             PADDLE_SHRINK_COUNT := PADDLE_SHRINK_COUNT + 1;
+
             if SW(0) = '0' then
                 puck_velocity.y := puck_velocity.y + GRAVITY; -- green
             end if;
             if SW(1) = '0' then
                 puck2_velocity.y := puck2_velocity.y + GRAVITY; -- blue
             end if;
-            state := ERASE_PADDLE_ENTER;  -- next state
 
             if SW(2) = '1' then
                 PADDLE_SPEED := PADDLE_SPEED_1;
@@ -235,29 +237,13 @@ begin
                 PADDLE_SPEED := PADDLE_SPEED_0;
             end if;
 
-            if SW(4) = '1' then
-                PADDLE_WIDTH := PADDLE_WIDTH_1;
-            elsif SW(5) = '1' then
-                PADDLE_WIDTH := PADDLE_WIDTH_2;
-            else
-                PADDLE_WIDTH := PADDLE_WIDTH_0;
-            end if;
-
         end if;
 
-            if PADDLE_SHRINK_COUNT >= 160 then -- every 20s (20 * 8/s)
-                PADDLE_SHRINK_COUNT := 0;
-                PADDLE_SHRINK_NUMBER := PADDLE_SHRINK_NUMBER + 1;
-            if PADDLE_SHRINK_NUMBER >= 6 then
-                PADDLE_SHRINK_NUMBER := 6;
-            end if;
-        end if;
-
-    when ERASE_PADDLE_ENTER =>          
+    when ERASE_PADDLE_ENTER =>
         draw.y <= to_unsigned(PADDLE_ROW, draw.y'length);
-        draw.x <= paddle_x;   
+        draw.x <= paddle_x;
         colour <= BLACK;
-        plot <= '1';          
+        plot <= '1';
         state := ERASE_PADDLE_LOOP;
 
     when ERASE_PADDLE_LOOP =>
@@ -269,6 +255,24 @@ begin
         end if;
 
     when DRAW_PADDLE_ENTER =>
+
+        if (PADDLE_SHRINK_COUNT >= 160) then -- every 20s (20 * 8/s)
+            PADDLE_SHRINK_COUNT := 0;
+            PADDLE_SHRINK_NUMBER := PADDLE_SHRINK_NUMBER + 1;
+
+            if (PADDLE_SHRINK_NUMBER >= 6) then
+                PADDLE_SHRINK_NUMBER := 6;
+            end if;
+            
+        end if;    
+
+        if (SW(4) = '1') then
+            PADDLE_WIDTH := PADDLE_WIDTH_1;
+        elsif (SW(5) = '1') then
+            PADDLE_WIDTH := PADDLE_WIDTH_2;
+        else
+            PADDLE_WIDTH := PADDLE_WIDTH_0;
+        end if;
 
         if (KEY(0) = '0') then
             
@@ -309,12 +313,18 @@ begin
         puck.x := unsigned(signed(puck.x) + puck_velocity.x);
         puck.y := unsigned(signed(puck.y) + puck_velocity.y);               
 
-        if puck.y <= TOP_LINE + "00000001" & "10000000" then --TOP_LINE + 1 then
+        if puck.y <= (TOP_LINE + to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS) then
+            puck.y := (TOP_LINE + to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS);
             puck_velocity.y := 0-puck_velocity.y;
         end if;
 
-        if puck.x <= LEFT_LINE + "00000010" & "00000000" or--LEFT_LINE + 1 or
-            puck.x >= RIGHT_LINE - "00000001" & "00000000" then--RIGHT_LINE - 1 then
+        if (puck.x <= (LEFT_LINE + to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS) ) then
+            puck.x := (LEFT_LINE + to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS);
+            puck_velocity.x := 0-puck_velocity.x;
+        end if;
+
+        if (puck.x >= (RIGHT_LINE - to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS)) then
+            puck.x := (RIGHT_LINE - to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS);
             puck_velocity.x := 0-puck_velocity.x;
         end if;
 
@@ -327,67 +337,62 @@ begin
             end if;     
         end if;
 
-when DRAW_PUCK =>
-colour <= GREEN;
-plot <= '1';
-draw.x <= "00000000" & puck.x(15 downto 8);  
-draw.y <= "00000000" & puck.y(15 downto 8);
-state := ERASE_PUCK_2;      -- next state is IDLE (which is the delay state)  
+    when DRAW_PUCK =>
+        colour <= GREEN;
+        plot <= '1';
+        draw.x <= "00000000" & puck.x(15 downto 8);  
+        draw.y <= "00000000" & puck.y(15 downto 8);
+        state := ERASE_PUCK_2;
 
-when ERASE_PUCK_2 =>
-colour <= BLACK;  -- erase by setting colour to black
-plot <= '1';
-draw.x <= "00000000" & puck2.x(15 downto 8);  
-draw.y <= "00000000" & puck2.y(15 downto 8);  -- the x and y lines are driven by "puck" which 
-     -- holds the location of the puck.
-state := DRAW_PUCK_2;  -- next state is DRAW_PUCK.
+    when ERASE_PUCK_2 =>
+        colour <= BLACK;
+        plot <= '1';
+        draw.x <= "00000000" & puck2.x(15 downto 8);  
+        draw.y <= "00000000" & puck2.y(15 downto 8);
 
--- update the location of the puck 
-puck2.x := unsigned(signed(puck2.x) + puck2_velocity.x);
-puck2.y := unsigned(signed(puck2.y) + puck2_velocity.y);                
+        state := DRAW_PUCK_2;
 
--- See if we have bounced off the top of the screen
-if puck2.y <= TOP_LINE + "00000001" & "00000000" then
-puck2_velocity.y := 0-puck2_velocity.y;
-end if;
+        puck2.x := unsigned(signed(puck2.x) + puck2_velocity.x);
+        puck2.y := unsigned(signed(puck2.y) + puck2_velocity.y);                
 
--- See if we have bounced off the right or left of the screen
-if puck2.x <= LEFT_LINE + "00000001" & "10000000" or
-puck2.x >= RIGHT_LINE - "00000001" & "00000000" then
-puck2_velocity.x := 0-puck2_velocity.x;
-end if;                 
+        if puck2.y <= (TOP_LINE + to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS) then
+            puck2.y := (TOP_LINE + to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS);
+            puck2_velocity.y := 0-puck2_velocity.y;
+        end if;
 
--- See if we have bounced off the paddle on the bottom row of
--- the screen        
+        if (puck2.x <= (LEFT_LINE + to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS) ) then
+            puck2.x := (LEFT_LINE + to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS);
+            puck2_velocity.x := 0-puck2_velocity.x;
+        end if;
 
-if puck2.y >= PADDLE_ROW - "00000010" & "00000000" then
-if puck2.x >= paddle_x & "00000000" and puck2.x <= paddle_x + PADDLE_WIDTH - PADDLE_SHRINK_NUMBER & "00000000" then
+        if (puck2.x >= (RIGHT_LINE - to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS)) then
+            puck2.x := (RIGHT_LINE - to_unsigned(1, INT_BITS)) & to_unsigned(0, FRAC_BITS);
+            puck2_velocity.x := 0-puck2_velocity.x;
+        end if;             
 
--- we have bounced off the paddle
-puck2_velocity.y := 0-puck2_velocity.y;
-else
--- we are at the bottom row, but missed the paddle.  Reset game!
-state := INIT;
-end if;     
-end if;   
+        if puck2.y >= PADDLE_ROW - "00000010" & "00000000" then
+            if ( (puck2.x >= paddle_x & "00000000") and
+                 (puck2.x <= paddle_x + PADDLE_WIDTH - PADDLE_SHRINK_NUMBER & "00000000") ) then
 
-when DRAW_PUCK_2 =>
-colour <= BLUE;
-plot <= '1';
-draw.x <= "00000000" & puck2.x(15 downto 8);  
-draw.y <= "00000000" & puck2.y(15 downto 8);
-state := IDLE;      -- next state is IDLE (which is the delay state)   
+                puck2_velocity.y := 0-puck2_velocity.y;
+            else
+                state := INIT;
+            end if;     
+        end if;   
 
--- ============================================================
--- We'll never get here, but good practice to include it anyway
--- ============================================================
+    when DRAW_PUCK_2 =>
+        colour <= BLUE;
+        plot <= '1';
+        draw.x <= "00000000" & puck2.x(15 downto 8);  
+        draw.y <= "00000000" & puck2.y(15 downto 8);
+        state := IDLE;
 
-when others =>
-state := START;
+    when others =>
+        state := START;
 
-end case;
-end if;
-end process;
+    end case;
+    end if;
+    end process;
 end rtl;
 
 
