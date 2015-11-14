@@ -166,16 +166,108 @@ BEGIN
 
 				when write_sample =>
 					write_s <= '1';
+
 					if (play.C4 = '1') then
 						if (sample_counter.C4 > notes.C4.half) then
-							sample := neg_volume;
+							sample := std_logic_vector(unsigned(sample) + unsigned(neg_volume));
 						else
-							sample := volume;
+							sample := std_logic_vector(unsigned(sample) + unsigned(volume));
 						end if;
 
 						sample_counter.C4 := sample_counter.C4 + to_unsigned(1, sample_counter.C4'length);
 						if (sample_counter.C4 > notes.C4.full) then
 							sample_counter.C4 := to_unsigned(0, sample_counter.C4'length);
+						end if;
+					end if;
+
+					if (play.D4 = '1') then
+						if (sample_counter.D4 > notes.D4.half) then
+							sample := std_logic_vector(unsigned(sample) + unsigned(neg_volume));
+						else
+							sample := std_logic_vector(unsigned(sample) + unsigned(volume));
+						end if;
+
+						sample_counter.D4 := sample_counter.D4 + to_unsigned(1, sample_counter.D4'length);
+						if (sample_counter.D4 > notes.D4.full) then
+							sample_counter.D4 := to_unsigned(0, sample_counter.D4'length);
+						end if;
+					end if;
+					
+					if (play.E4 = '1') then
+						if (sample_counter.E4 > notes.E4.half) then
+							sample := std_logic_vector(unsigned(sample) + unsigned(neg_volume));
+						else
+							sample := std_logic_vector(unsigned(sample) + unsigned(volume));
+						end if;
+
+						sample_counter.E4 := sample_counter.E4 + to_unsigned(1, sample_counter.E4'length);
+						if (sample_counter.E4 > notes.E4.full) then
+							sample_counter.E4 := to_unsigned(0, sample_counter.E4'length);
+						end if;
+					end if;
+
+					if (play.F4 = '1') then
+						if (sample_counter.F4 > notes.F4.half) then
+							sample := std_logic_vector(unsigned(sample) + unsigned(neg_volume));
+						else
+							sample := std_logic_vector(unsigned(sample) + unsigned(volume));
+						end if;
+
+						sample_counter.F4 := sample_counter.F4 + to_unsigned(1, sample_counter.F4'length);
+						if (sample_counter.F4 > notes.F4.full) then
+							sample_counter.F4 := to_unsigned(0, sample_counter.F4'length);
+						end if;
+					end if;
+
+					if (play.G4 = '1') then
+						if (sample_counter.G4 > notes.G4.half) then
+							sample := std_logic_vector(unsigned(sample) + unsigned(neg_volume));
+						else
+							sample := std_logic_vector(unsigned(sample) + unsigned(volume));
+						end if;
+
+						sample_counter.G4 := sample_counter.G4 + to_unsigned(1, sample_counter.G4'length);
+						if (sample_counter.G4 > notes.G4.full) then
+							sample_counter.G4 := to_unsigned(0, sample_counter.G4'length);
+						end if;
+					end if;
+
+					if (play.A4 = '1') then
+						if (sample_counter.A4 > notes.A4.half) then
+							sample := std_logic_vector(unsigned(sample) + unsigned(neg_volume));
+						else
+							sample := std_logic_vector(unsigned(sample) + unsigned(volume));
+						end if;
+
+						sample_counter.A4 := sample_counter.A4 + to_unsigned(1, sample_counter.A4'length);
+						if (sample_counter.A4 > notes.A4.full) then
+							sample_counter.A4 := to_unsigned(0, sample_counter.A4'length);
+						end if;
+					end if;
+
+					if (play.B4 = '1') then
+						if (sample_counter.B4 > notes.B4.half) then
+							sample := std_logic_vector(unsigned(sample) + unsigned(neg_volume));
+						else
+							sample := std_logic_vector(unsigned(sample) + unsigned(volume));
+						end if;
+
+						sample_counter.B4 := sample_counter.B4 + to_unsigned(1, sample_counter.B4'length);
+						if (sample_counter.B4 > notes.B4.full) then
+							sample_counter.B4 := to_unsigned(0, sample_counter.B4'length);
+						end if;
+					end if;
+
+					if (play.C5 = '1') then
+						if (sample_counter.C5 > notes.C5.half) then
+							sample := std_logic_vector(unsigned(sample) + unsigned(neg_volume));
+						else
+							sample := std_logic_vector(unsigned(sample) + unsigned(volume));
+						end if;
+
+						sample_counter.C5 := sample_counter.C5 + to_unsigned(1, sample_counter.C5'length);
+						if (sample_counter.C5 > notes.C5.full) then
+							sample_counter.C5 := to_unsigned(0, sample_counter.C5'length);
 						end if;
 					end if;
 
