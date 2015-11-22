@@ -140,7 +140,6 @@ BEGIN
 		
 	when drive_state =>
 		if (rom_q_var = "00000001") then
-			ledr(9) <= '1';
 			count_C <= count_C + 1;
 			if count_C > NUM_SAMPLES_C then
 				count_C <= 0;
