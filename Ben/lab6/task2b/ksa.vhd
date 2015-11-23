@@ -131,7 +131,7 @@ architecture rtl of ksa is
           address_var := std_logic_vector(to_unsigned(memI, address_var'length));
 
         when state_swap_readSi_wait =>
-          currentState := state_swap_readSj;
+          currentState := state_swap_setj;
 
         when state_swap_registerSi =>
           currentState := state_swap_setj;
@@ -151,7 +151,7 @@ architecture rtl of ksa is
 
           Si := q;
 
-          memJ := (memJ + to_integer(unsigned(Si)) + to_integer(unsigned( key_sub ))) mod MEM_SIZE;
+          memJ := (memJ + to_integer(unsigned(q)) + to_integer(unsigned( key_sub ))) mod MEM_SIZE;
 
         when state_swap_readSj =>
           currentState := state_swap_readSj_wait;
