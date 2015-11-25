@@ -51,6 +51,17 @@ component d_memory
   );
 end component;
 
+component init_s is
+  port(
+    start : in std_logic;
+    clock : in std_logic;
+    done : out std_logic;
+    wren : out std_logic;
+    data : out std_logic_vector(7 downto 0);
+    addr : out std_logic_vector(7 downto 0)
+  );
+end component;
+
 	-- Enumerated type for the state variable.  You will likely be adding extra
 	-- state names here as you complete your design
 	
@@ -87,19 +98,45 @@ end component;
    signal wren_d : STD_LOGIC;
    signal q_d : STD_LOGIC_VECTOR (7 DOWNTO 0);
 
+   signal u_init_start : std_logic;
+   signal u_init_done : std_logic;
+   signal u_init_wren : std_logic;
+   signal u_init_data : std_logic_vector(data'left downto data'right);
+   signal u_init_addr : std_logic_vector(address'left downto address'right);
+   signal u_init_active : std_logic;
+
+   signal u_address_s : std_logic_vector(7 downto 0);
+   signal u_data_s : std_logic_vector(7 downto 0);
+   signal u_wren_s : std_logic;
+
 	 begin
 	    -- Include the S memory structurally
 	
-       u0: s_memory port map (
-	        address, clock_50, data, wren, q);
+       u_s: s_memory port map (
+	        u_address_s, clock_50, u_data_s, u_wren_s, q);
 
        e_rom: e_memory port map(address => address_e, clock => clock_50, q => q_e);
 
        d_ram: d_memory port map(address => address_d, clock => clock_50, data => data_d, wren => wren_d, q => q_d);
 
+      u_init: init_s port map(start => u_init_start, clock => clock_50, done => u_init_done,
+                     wren => u_init_wren, data => u_init_data, addr => u_init_addr);
 
     secret_key <= "000000" & sw(17 downto 0);
     ledr <= sw;
+
+    process(all)
+    begin
+      if (u_init_active = '1') then
+        u_wren_s <= u_init_wren;
+        u_data_s <= u_init_data;
+        u_address_s <= u_init_addr;
+      else
+        u_wren_s <= wren;
+        u_data_s <= data;
+        u_address_s <= address;
+      end if;
+    end process;
 			  
        -- for (i in 0..255)
        -- 	u0[i] = i
@@ -139,34 +176,26 @@ end component;
     		case currentState is
 
     		when state_init =>
-          -- State.
     			currentState := state_fill;
 
-          -- Iteration.
           memI := 0;
 
-          -- Communication.
-          wren_s_var := '1';
-          address_s_var := std_logic_vector(to_unsigned(memI, address_s_var'length));
-          data_s_var := std_logic_vector(to_unsigned(memI, data_s_var'length));
           ledg(1 downto 0) <= "00";
 
+          u_init_active <= '1';
+          u_init_start <= '1';
+
     		when state_fill =>
-    			if (memI = MEM_SIZE - 1) then
+    			if (u_init_done = '1') then
     				currentState := state_done;
     			else
     				currentState := state_fill;
-
-            memI := memI + 1;
           end if;
-
-          address_s_var := std_logic_vector(to_unsigned(memI, address_s_var'length));
-          data_s_var := std_logic_vector(to_unsigned(memI, data_s_var'length));
 
     		when state_done =>
           currentState := state_swap_begin;
           
-          wren_s_var := '0';
+          u_init_active <= '0';
 
 
         when state_swap_begin =>
