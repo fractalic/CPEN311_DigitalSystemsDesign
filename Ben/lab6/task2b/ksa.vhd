@@ -30,6 +30,27 @@ architecture rtl of ksa is
 		   q		: OUT STD_LOGIC_VECTOR (7 DOWNTO 0));
    END component;
 
+-- ROM for encrypted message.
+component e_memory
+  PORT
+  (
+    address   : IN STD_LOGIC_VECTOR (4 DOWNTO 0);
+    clock   : IN STD_LOGIC  := '1';
+    q   : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
+  );
+end component;
+
+component d_memory
+  PORT
+  (
+    address   : IN STD_LOGIC_VECTOR (4 DOWNTO 0);
+    clock   : IN STD_LOGIC  := '1';
+    data    : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+    wren    : IN STD_LOGIC ;
+    q   : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
+  );
+end component;
+
 	-- Enumerated type for the state variable.  You will likely be adding extra
 	-- state names here as you complete your design
 	
@@ -39,23 +60,42 @@ architecture rtl of ksa is
                 state_swap_begin, state_swap_readSi, state_swap_readSi_wait,
                 state_swap_registerSi, state_swap_setj,
                 state_swap_readSj, state_swap_readSj_wait,
-                state_swap_writeSj, state_swap_writeSi, state_swap_done);
+                state_swap_writeSj, state_swap_writeSi, state_swap_done,
+                state_decrypt_begin, state_decrypt_iterate, state_decrypt_iterate_delay,
+                state_decrypt_regSi, state_decrypt_writeSj, state_decrypt_regSj,
+                state_decrypt_loadE, state_decrypt_loadE_wait, state_decrypt_writeD,
+                state_decrypt_done
+                );
 
     constant MEM_SIZE : natural := 256;
     constant KEY_LENGTH : natural := 3;
+    constant MESSAGE_LENGTH : natural := 32;
 								
+   signal secret_key : std_logic_vector(23 downto 0);
+
     -- These are signals that are used to connect to the memory													 
 	 signal address : STD_LOGIC_VECTOR (7 DOWNTO 0);	 
 	 signal data : STD_LOGIC_VECTOR (7 DOWNTO 0);
 	 signal wren : STD_LOGIC;
 	 signal q : STD_LOGIC_VECTOR (7 DOWNTO 0);
-   signal secret_key : std_logic_vector(23 downto 0);
+
+   signal address_e : std_logic_vector(4 downto 0);
+   signal q_e : std_logic_vector(7 downto 0);
+
+   signal address_d : STD_LOGIC_VECTOR (4 DOWNTO 0);   
+   signal data_d : STD_LOGIC_VECTOR (7 DOWNTO 0);
+   signal wren_d : STD_LOGIC;
+   signal q_d : STD_LOGIC_VECTOR (7 DOWNTO 0);
 
 	 begin
 	    -- Include the S memory structurally
 	
        u0: s_memory port map (
 	        address, clock_50, data, wren, q);
+
+       e_rom: e_memory port map(address => address_e, clock => clock_50, q => q_e);
+
+       d_ram: d_memory port map(address => address_d, clock => clock_50, data => data_d, wren => wren_d, q => q_d);
 
 
     secret_key <= "000000" & sw(17 downto 0);
@@ -71,14 +111,24 @@ architecture rtl of ksa is
     -- Iteration.
     variable memI : integer := 0;
     variable memJ : integer := 0;
+    variable memK : integer := 0;
     variable memImod : integer := 0;
 
     -- Communcation.
-    variable address_var : std_logic_vector(address'left downto data'right);
-    variable data_var : std_logic_vector(data'left downto data'right);
-    variable wren_var : std_logic;
+    variable address_s_var : std_logic_vector(address'left downto address'right);
+    variable data_s_var : std_logic_vector(data'left downto data'right);
+    variable wren_s_var : std_logic;
+
+    variable address_e_var : std_logic_vector(address_e'left downto address_e'right);
+
+    variable address_d_var : std_logic_vector(address_d'left downto address_d'right);
+    variable data_d_var : std_logic_vector(data'left downto data'right);
+    variable wren_d_var : std_logic;
+
     variable Si : std_logic_vector(data'left downto data'right);
     variable Sj : std_logic_vector(data'left downto data'right);
+    variable Sf : std_logic_vector(data'left downto data'right);
+    variable Ek : std_logic_vector(data'left downto data'right);
     variable key_sub : std_logic_vector(7 downto 0);
 
     begin
@@ -96,10 +146,10 @@ architecture rtl of ksa is
           memI := 0;
 
           -- Communication.
-          wren_var := '1';
-          address_var := std_logic_vector(to_unsigned(memI, address_var'length));
-          data_var := std_logic_vector(to_unsigned(memI, data_var'length));
-          ledg(0) <= '0';
+          wren_s_var := '1';
+          address_s_var := std_logic_vector(to_unsigned(memI, address_s_var'length));
+          data_s_var := std_logic_vector(to_unsigned(memI, data_s_var'length));
+          ledg(1 downto 0) <= "00";
 
     		when state_fill =>
     			if (memI = MEM_SIZE - 1) then
@@ -110,13 +160,14 @@ architecture rtl of ksa is
             memI := memI + 1;
           end if;
 
-          address_var := std_logic_vector(to_unsigned(memI, address_var'length));
-          data_var := std_logic_vector(to_unsigned(memI, data_var'length));
+          address_s_var := std_logic_vector(to_unsigned(memI, address_s_var'length));
+          data_s_var := std_logic_vector(to_unsigned(memI, data_s_var'length));
 
     		when state_done =>
           currentState := state_swap_begin;
           
-          wren_var := '0';
+          wren_s_var := '0';
+
 
         when state_swap_begin =>
           currentState := state_swap_readSi;
@@ -127,8 +178,8 @@ architecture rtl of ksa is
         when state_swap_readSi =>
           currentState := state_swap_readSi_wait;
 
-          wren_var := '0';
-          address_var := std_logic_vector(to_unsigned(memI, address_var'length));
+          wren_s_var := '0';
+          address_s_var := std_logic_vector(to_unsigned(memI, address_s_var'length));
 
         when state_swap_readSi_wait =>
           currentState := state_swap_setj;
@@ -151,13 +202,13 @@ architecture rtl of ksa is
 
           Si := q;
 
-          memJ := (memJ + to_integer(unsigned(q)) + to_integer(unsigned( key_sub ))) mod MEM_SIZE;
+          memJ := (memJ + to_integer(unsigned(Si)) + to_integer(unsigned( key_sub ))) mod MEM_SIZE;
 
         when state_swap_readSj =>
-          currentState := state_swap_readSj_wait;
+          currentState := state_swap_writeSj;
 
-          wren_var := '0';
-          address_var := std_logic_vector(to_unsigned(memJ, address_var'length));
+          wren_s_var := '0';
+          address_s_var := std_logic_vector(to_unsigned(memJ, address_s_var'length));
 
         when state_swap_readSj_wait =>
           currentState := state_swap_writeSj;
@@ -165,10 +216,9 @@ architecture rtl of ksa is
         when state_swap_writeSj =>
           currentState := state_swap_writeSi;
 
-          Sj := q;
-          wren_var := '1';
-          address_var := std_logic_vector(to_unsigned(memJ, address_var'length));
-          data_var := Si;
+          wren_s_var := '1';
+          address_s_var := std_logic_vector(to_unsigned(memJ, address_s_var'length));
+          data_s_var := Si;
 
         when state_swap_writeSi =>
           if (memI = 255) then
@@ -177,17 +227,98 @@ architecture rtl of ksa is
             currentState := state_swap_readSi;
           end if;
 
-          wren_var := '1';
-          address_var := std_logic_vector(to_unsigned(memI, address_var'length));
-          data_var := Sj;
+          Sj := q;
+          wren_s_var := '1';
+          address_s_var := std_logic_vector(to_unsigned(memI, address_s_var'length));
+          data_s_var := Sj;
 
           memI := memI + 1;
 
         when state_swap_done =>
-          currentState := state_swap_done;
+          currentState := state_decrypt_begin;
           ledg(0) <= '1';
 
-          wren_var := '0';
+          wren_s_var := '0';
+
+
+        when state_decrypt_begin =>
+          currentState := state_decrypt_iterate;
+
+          memI := 0;
+          memJ := 0;
+          memK := 0;
+
+          wren_d_var := '0';
+
+        when state_decrypt_iterate =>
+          currentState := state_decrypt_iterate_delay;
+
+          memI := (memI + 1) mod MEM_SIZE;
+
+          wren_s_var := '0';
+          address_s_var := std_logic_vector(to_unsigned(memI, address_s_var'length));
+
+        when state_decrypt_iterate_delay =>
+          currentState := state_decrypt_regSi;
+
+        when state_decrypt_regSi =>
+          currentState := state_decrypt_writeSj;
+
+          Si := q;
+          memJ := (memJ + to_integer(unsigned(Si)) ) mod MEM_SIZE;
+
+          wren_s_var := '0';
+          address_s_var := std_logic_vector(to_unsigned(memJ, address_s_var'length));
+
+        when state_decrypt_writeSj =>
+          currentState := state_decrypt_regSj;
+
+          wren_s_var := '1';
+          address_s_var := std_logic_vector(to_unsigned(memJ, address_s_var'length));
+          data_s_var := Si;
+
+        when state_decrypt_regSj =>
+          currentState := state_decrypt_loadE;
+
+          Sj := q;
+
+          wren_s_var := '1';
+          address_s_var := std_logic_vector(to_unsigned(memI, address_s_var'length));
+          data_s_var := Sj;
+
+        when state_decrypt_loadE =>
+          currentState := state_decrypt_loadE_wait;
+
+          wren_s_var := '0';
+          address_s_var := std_logic_vector(to_unsigned( (to_integer(unsigned(Si)) + to_integer(unsigned(Sj)) ) mod MEM_SIZE, address_s_var'length ));
+
+          address_e_var := std_logic_vector(to_unsigned(memK, address_e_var'length));
+
+        when state_decrypt_loadE_wait =>
+          currentState := state_decrypt_writeD;
+
+        when state_decrypt_writeD =>
+          currentState := state_decrypt_iterate;
+
+          Sf := q;
+          Ek := q_e;
+
+          wren_d_var := '1';
+          address_d_var := std_logic_vector(to_unsigned(memK, address_d_var'length));
+          data_d_var := Sf xor Ek;
+
+          if (memK = MESSAGE_LENGTH - 1) then
+            currentState := state_decrypt_done;
+          end if;
+
+          memK := memK + 1;
+
+        when state_decrypt_done =>
+          wren_d_var := '0';
+
+          ledg(1) <= '1';
+
+          currentState := state_decrypt_done;
 
     		when others =>
           currentState := state_init;
@@ -196,9 +327,15 @@ architecture rtl of ksa is
     	end if;
 
 
-      address <= address_var;
-      data <= data_var;
-      wren <= wren_var;
+      address <= address_s_var;
+      data <= data_s_var;
+      wren <= wren_s_var;
+
+      wren_d <= wren_d_var;
+      address_d <= address_d_var;
+      data_d <= data_d_var;
+
+      address_e <= address_e_var;
 
       --j = 0
       --for i = 0 to 255 {
