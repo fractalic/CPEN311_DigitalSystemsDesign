@@ -190,6 +190,8 @@ end component;
     variable Sj : std_logic_vector(data'left downto data'right);
     variable Sf : std_logic_vector(data'left downto data'right);
 
+    variable ready_var : std_logic;
+
     begin
 
 
@@ -200,6 +202,7 @@ end component;
             when state_reset =>
                 if (go = '1') then
                     currentState := state_reg_new_key;
+                    ready_var := '0';
                 else
                     currentState := state_reset;
                 end if;
@@ -209,7 +212,7 @@ end component;
                 u_reorder_active <= '0';
                 u_reorder_start <= '0';
 
-                ready <= '1';
+                ready_var := '1';
 
 
             when state_reg_new_key =>
@@ -217,7 +220,7 @@ end component;
 
                 key := key_in;
 
-                ready <= '0';
+                ready_var := '0';
 
 
 
@@ -229,6 +232,8 @@ end component;
                 u_reorder_active <= '0';
                 u_reorder_start <= '0';
 
+                ready_var := '0';
+
 
     		when state_fill =>
                 currentState := state_fill;
@@ -236,12 +241,17 @@ end component;
     				currentState := state_done;
                 end if;
 
+                ready_var := '0';
+
 
     		when state_done =>
-                currentState := state_reorder_begin;
+                --currentState := state_reorder_begin;
+                currentState := state_decrypt_done;
 
                 u_init_active <= '0';
                 u_init_start <= '0';
+
+                ready_var := '0';
 
 
             when state_reorder_begin =>
@@ -250,13 +260,18 @@ end component;
               u_reorder_active <= '1';
               u_reorder_start <= '1';
 
+              ready_var := '0';
+
 
             when state_reorder_loop =>
               if (u_reorder_done = '1') then
                 currentState := state_reorder_done;
+                ready_var := '1';
               else
                 currentState := state_reorder_loop;
               end if;
+
+              ready_var := '0';
 
 
             when state_reorder_done =>
@@ -264,9 +279,10 @@ end component;
 
                 if (go = '1') then
                     currentState := state_reg_new_char;
+                    ready_var := '0';
                 end if;
 
-                ready <= '1';
+                ready_var := '1';
 
                 u_reorder_active <= '0';
                 u_reorder_start <= '0';
@@ -282,7 +298,7 @@ end component;
             when state_reg_new_char =>
                 currentState := state_decrypt_iterate;
 
-                ready <= '0';
+                ready_var := '0';
                 char_e := char_in;
 
 
@@ -295,9 +311,13 @@ end component;
               wren_s_var := '0';
               address_s_var := std_logic_vector(to_unsigned(memI, address_s_var'length));
 
+              ready_var := '0';
+
 
             when state_decrypt_iterate_delay =>
               currentState := state_decrypt_regSi;
+
+              ready_var := '0';
 
 
             when state_decrypt_regSi =>
@@ -309,6 +329,8 @@ end component;
               wren_s_var := '0';
               address_s_var := std_logic_vector(to_unsigned(memJ, address_s_var'length));
 
+              ready_var := '0';
+
 
             when state_decrypt_writeSj =>
               currentState := state_decrypt_regSj;
@@ -316,6 +338,8 @@ end component;
               wren_s_var := '1';
               address_s_var := std_logic_vector(to_unsigned(memJ, address_s_var'length));
               data_s_var := Si;
+
+              ready_var := '0';
 
 
             when state_decrypt_regSj =>
@@ -327,6 +351,8 @@ end component;
               address_s_var := std_logic_vector(to_unsigned(memI, address_s_var'length));
               data_s_var := Sj;
 
+              ready_var := '0';
+
 
             when state_decrypt_loadE =>
               currentState := state_decrypt_loadE_wait;
@@ -334,9 +360,13 @@ end component;
               wren_s_var := '0';
               address_s_var := std_logic_vector(to_unsigned( (to_integer(unsigned(Si)) + to_integer(unsigned(Sj)) ) mod MEM_SIZE, address_s_var'length ));
 
+              ready_var := '0';
+
 
             when state_decrypt_loadE_wait =>
               currentState := state_decrypt_writeD;
+
+              ready_var := '0';
 
 
             when state_decrypt_writeD =>
@@ -350,6 +380,8 @@ end component;
 
                 memK := memK + 1;
 
+                ready_var := '0';
+
 
             when state_decrypt_done =>
                 currentState := state_decrypt_done;
@@ -357,19 +389,22 @@ end component;
                 if (go = '1') then
                     if (new_key = '1') then
                         currentState := state_reg_new_key;
+                        ready_var := '0';
                     else
                         currentState := state_reg_new_char;
+                        ready_var := '0';
                     end if;
                 end if;
 
                 wren_d_var := '0';
 
-                ready <= '1';
+                ready_var := '1';
                 
 
 
         	when others =>
                 currentState := state_init;
+                ready_var := '0';
 
 
     		end case;
@@ -383,6 +418,8 @@ end component;
         wren_d <= wren_d_var;
         address_d <= address_d_var;
         data_d <= data_d_var;
+
+        ready <= ready_var;
 
     end process;
 
